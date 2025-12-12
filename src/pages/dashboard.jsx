@@ -54,9 +54,11 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
     const isMountedRef = useRef(false);
     const { showError } = useNotification();
     const [showChat, setShowChat] = useState(false);
-const [messages, setMessages] = useState([]);
-const [input, setInput] = useState("");
-let aiStreamRef = useRef(null);
+    const [messages, setMessages] = useState([]);
+    const [input, setInput] = useState("");
+    const [uploadedFiles, setUploadedFiles] = useState([]);
+    let aiStreamRef = useRef(null);
+    const fileInputRef = useRef(null);
 
 
     // Helper function to normalize status values - trim and validate
@@ -117,22 +119,24 @@ let aiStreamRef = useRef(null);
 const handleSendMessage = (e) => {
   e.preventDefault();
 
+  if (!input.trim()) return;
+
   const userMessage = { sender: "user", text: input };
-  setMessages((prev) => [...prev, userMessage]);
-
   const aiMessage = { sender: "ai", text: "" };
-  setMessages((prev) => [...prev, aiMessage]);
-
-  const index = messages.length;
+  
+  // Add both messages together to ensure correct indexing
+  setMessages((prev) => [...prev, userMessage, aiMessage]);
 
   aiStreamRef.current = streamAIResponse(
     input,
     (token) => {
       setMessages((prev) => {
         const updated = [...prev];
-        updated[index] = {
+        // AI message is always the last message
+        const aiIndex = updated.length - 1;
+        updated[aiIndex] = {
           sender: "ai",
-          text: updated[index].text + token,
+          text: updated[aiIndex].text + token,
         };
         return updated;
       });
@@ -142,6 +146,15 @@ const handleSendMessage = (e) => {
   );
 
   setInput("");
+};
+
+const handleFileUpload = (e) => {
+  const files = Array.from(e.target.files);
+  setUploadedFiles((prev) => [...prev, ...files]);
+};
+
+const removeFile = (index) => {
+  setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
 };
 
 useEffect(() => {
@@ -1161,19 +1174,19 @@ useEffect(() => {
                                         </TableBody>
                                     </Table>
                                     {showChat && (
-  <div className="fixed bottom-20 right-6 w-80 bg-white shadow-xl border border-neutral-300 rounded-xl z-50">
+  <div className="fixed bottom-6 right-6 w-[600px] h-[700px] bg-white shadow-2xl border border-neutral-300 rounded-2xl z-50 flex flex-col">
     {/* Chat Header */}
-    <div className="p-3 bg-blue-600 text-white rounded-t-xl flex justify-between items-center">
-      <span className="font-semibold">AI Assistant</span>
+    <div className="p-4 bg-blue-600 text-white rounded-t-2xl flex justify-between items-center">
+      <span className="font-bold text-lg">AI Assistant</span>
       <button onClick={() => setShowChat(false)}>
-        <FaTimes className="h-4 w-4" />
+        <FaTimes className="h-5 w-5" />
       </button>
     </div>
 
     {/* Messages Box */}
     <div
       id="aiChatBox"
-      className="p-3 h-64 overflow-y-auto text-sm text-neutral-800 space-y-2"
+      className="flex-1 p-4 overflow-y-auto text-sm text-neutral-800 space-y-3"
     >
       {messages.map((msg, idx) => (
         <div
@@ -1190,19 +1203,53 @@ useEffect(() => {
     </div>
 
     {/* Input */}
-    <div className="p-3 border-t border-neutral-300">
-      <form onSubmit={handleSendMessage} className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          className="flex-1 border border-neutral-300 rounded-lg px-2 py-1 text-sm"
-          placeholder="Ask me anything..."
-          required
-        />
-        <button className="bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700 text-sm">
-          Send
+    <div className="p-4 border-t border-neutral-300">
+      <form onSubmit={handleSendMessage} className="space-y-3">
+        {/* Uploaded Files Display - Compact */}
+        {uploadedFiles.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {uploadedFiles.map((file, idx) => (
+              <div key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                <span className="truncate max-w-[150px]">{file.name}</span>
+                <button
+                  type="button"
+                  onClick={() => removeFile(idx)}
+                  className="text-blue-600 hover:text-blue-800 font-bold"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <div className="flex gap-2">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="flex-1 border border-neutral-300 rounded-lg px-3 py-2 text-sm resize-none"
+            placeholder="Ask me anything..."
+            rows="2"
+          />
+          <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold self-end">
+            Send
+          </button>
+        </div>
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="w-full bg-neutral-200 text-neutral-700 px-3 py-2 rounded-lg hover:bg-neutral-300 text-sm font-bold transition-colors"
+        >
+          📎 Attach Files
         </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          onChange={handleFileUpload}
+          multiple
+          accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+          className="hidden"
+        />
       </form>
     </div>
   </div>
