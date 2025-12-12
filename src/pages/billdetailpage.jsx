@@ -13,7 +13,6 @@ const BillDetailPage = ({ user }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
 
-
     useEffect(() => {
         loadBill();
     }, [id]);
@@ -38,8 +37,6 @@ const BillDetailPage = ({ user }) => {
     const handlePrint = () => {
         window.print();
     };
-
-
 
     if (loading) {
         return (
@@ -120,12 +117,22 @@ const BillDetailPage = ({ user }) => {
         );
     }
 
-
-
     const totalItems = bill.items?.length || 0;
     const totalAmount = bill.totalAmount || 0;
-    const totalGst = bill.totalGst || 0;
+    const totalCgst = bill.totalCgst || 0;
+    const totalSgst = bill.totalSgst || 0;
+    const totalIgst = bill.totalIgst || 0;
+    const totalGst = totalCgst + totalSgst + totalIgst;
     const grandTotal = bill.grandTotal || 0;
+
+    // Calculate totals from items for verification
+    const calculatedTotals = bill.items?.reduce((acc, item) => {
+        acc.totalAmount += item.amount || 0;
+        acc.totalCgst += item.cgst || 0;
+        acc.totalSgst += item.sgst || 0;
+        acc.totalItemTotal += item.itemTotal || 0;
+        return acc;
+    }, { totalAmount: 0, totalCgst: 0, totalSgst: 0, totalItemTotal: 0 });
 
     return (
         <div className="min-h-screen bg-neutral-50 p-4">
@@ -177,6 +184,11 @@ const BillDetailPage = ({ user }) => {
                             <div className="space-y-1">
                                 <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Bill Date</p>
                                 <p className="text-sm font-medium text-neutral-900">{bill.billDate}</p>
+                            </div>
+                            <div className="border-t border-neutral-200"></div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest">Total Items</p>
+                                <p className="text-sm font-medium text-neutral-900">{totalItems}</p>
                             </div>
                             <div className="border-t border-neutral-200"></div>
                             <div className="space-y-1">
@@ -315,6 +327,27 @@ const BillDetailPage = ({ user }) => {
                                                 </td>
                                             </tr>
                                         ))}
+                                        {/* Totals Row */}
+                                        <tr className="bg-neutral-100 border-t-2 border-neutral-400">
+                                            <td colSpan="2" className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                TOTAL
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                ₹{calculatedTotals?.totalAmount.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                -
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                ₹{calculatedTotals?.totalCgst.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                ₹{calculatedTotals?.totalSgst.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-blue-600">
+                                                ₹{calculatedTotals?.totalItemTotal.toFixed(2) || "0.00"}
+                                            </td>
+                                        </tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -345,7 +378,7 @@ const BillDetailPage = ({ user }) => {
                                                     CGST (9%)
                                                 </td>
                                                 <td className="px-4 py-3 text-right text-sm font-semibold text-neutral-700">
-                                                    ₹{(bill.totalCgst || 0)?.toFixed(2)}
+                                                    ₹{totalCgst?.toFixed(2)}
                                                 </td>
                                             </tr>
                                             <tr className="border-b border-neutral-200">
@@ -353,7 +386,7 @@ const BillDetailPage = ({ user }) => {
                                                     SGST (9%)
                                                 </td>
                                                 <td className="px-4 py-3 text-right text-sm font-semibold text-neutral-700">
-                                                    ₹{(bill.totalSgst || 0)?.toFixed(2)}
+                                                    ₹{totalSgst?.toFixed(2)}
                                                 </td>
                                             </tr>
                                             <tr className="border-b border-neutral-200">
@@ -361,7 +394,7 @@ const BillDetailPage = ({ user }) => {
                                                     IGST (18%)
                                                 </td>
                                                 <td className="px-4 py-3 text-right text-sm font-semibold text-neutral-700">
-                                                    ₹{(bill.totalIgst || 0)?.toFixed(2)}
+                                                    ₹{totalIgst?.toFixed(2)}
                                                 </td>
                                             </tr>
                                             <tr className="bg-blue-500">
@@ -422,6 +455,87 @@ const BillDetailPage = ({ user }) => {
                                 </div>
                             )}
 
+                            {/* Bill Summary Table - Added at the end */}
+                            <div className="mt-8 pt-6 border-t border-neutral-200">
+                                <h3 className="font-bold mb-4 text-neutral-900 flex items-center gap-2">
+                                    <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                                    BILL SUMMARY
+                                </h3>
+                                <table className="w-full border border-neutral-300">
+                                    <thead>
+                                        <tr className="bg-neutral-100 border-b border-neutral-300">
+                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                Description
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                Bill Number
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                Bill Month
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                Bill Date
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                Total Items
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                Total Amount
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                Total GST
+                                            </th>
+                                            <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                Grand Total
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors duration-200">
+                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                Tax Invoice
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                {bill.billNumber}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                {bill.billMonth}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                {bill.billDate}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                {totalItems}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-semibold text-neutral-700">
+                                                ₹{totalAmount?.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-semibold text-neutral-700">
+                                                ₹{totalGst?.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-blue-600">
+                                                ₹{grandTotal?.toFixed(2) || "0.00"}
+                                            </td>
+                                        </tr>
+                                        {/* Summary Row */}
+                                        <tr className="bg-neutral-100 border-t-2 border-neutral-400">
+                                            <td colSpan="5" className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                FINAL SUMMARY
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                ₹{totalAmount?.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                ₹{totalGst?.toFixed(2) || "0.00"}
+                                            </td>
+                                            <td className="border border-neutral-300 px-4 py-3 text-right text-lg font-bold text-blue-600">
+                                                ₹{grandTotal?.toFixed(2) || "0.00"}
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+
                             {/* Signature Section */}
                             <div className="border-t pt-6 grid grid-cols-3 gap-8 mt-8">
                                 <div></div>
@@ -446,18 +560,18 @@ const BillDetailPage = ({ user }) => {
 
             {/* Print Styles */}
             <style>{`
-        @media print {
-          body {
-            background: white;
-          }
-          .print\\:shadow-none {
-            box-shadow: none;
-          }
-          .print\\:border-0 {
-            border: 0;
-          }
-        }
-      `}</style>
+                @media print {
+                    body {
+                        background: white;
+                    }
+                    .print\\:shadow-none {
+                        box-shadow: none;
+                    }
+                    .print\\:border-0 {
+                        border: 0;
+                    }
+                }
+            `}</style>
         </div>
     );
 };
