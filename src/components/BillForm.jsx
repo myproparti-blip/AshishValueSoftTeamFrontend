@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { createBill, updateBill, getBillById } from "../services/billService";
 import { useNotification } from "../context/NotificationContext";
 import { Button } from "./ui/button";
@@ -11,11 +11,13 @@ import { FaFileInvoice, FaArrowLeft } from "react-icons/fa";
 const BillForm = ({ user }) => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const { showError, showSuccess } = useNotification();
     const role = user?.role || "";
     const [loading, setLoading] = useState(false);
     const [authError, setAuthError] = useState("");
     const [formErrors, setFormErrors] = useState({});
+    const [selectedRows, setSelectedRows] = useState([]);
 
     // Check authorization
     useEffect(() => {
@@ -23,6 +25,16 @@ const BillForm = ({ user }) => {
             setAuthError("You do not have permission to create or edit bills. Only managers and admin can access this feature.");
         }
     }, [role]);
+
+    // Load selected rows from navigation state or localStorage
+    useEffect(() => {
+        const rows = location.state?.selectedRows || 
+                     JSON.parse(localStorage.getItem('selectedValuationForms')) || [];
+        setSelectedRows(rows);
+    }, [location.state]);
+
+    // State to track fee and lead number for each selected row
+    const [selectedRowsData, setSelectedRowsData] = useState({});
     const [items, setItems] = useState([
         {
             particulars: "",
@@ -76,6 +88,23 @@ const BillForm = ({ user }) => {
             if (response.success) {
                 setBillData(response.data);
                 setItems(response.data.items || []);
+                
+                // Load selectedRecords if they exist
+                if (response.data.selectedRecords && Array.isArray(response.data.selectedRecords)) {
+                    setSelectedRows(response.data.selectedRecords);
+                    
+                    // Populate selectedRowsData with fee and leadNumber from loaded records
+                    const rowsData = {};
+                    response.data.selectedRecords.forEach(record => {
+                        rowsData[record._id] = {
+                            fee: record.fee || "",
+                            leadNumber: record.leadNumber || ""
+                        };
+                    });
+                    setSelectedRowsData(rowsData);
+                    
+                    console.log("[BillForm] Loaded selectedRecords:", response.data.selectedRecords);
+                }
             }
         } catch (err) {
             showError(
@@ -144,6 +173,16 @@ const BillForm = ({ user }) => {
         if (items.length > 1) {
             setItems(items.filter((_, i) => i !== index));
         }
+    };
+
+    const handleSelectedRowDataChange = (rowId, field, value) => {
+        setSelectedRowsData(prev => ({
+            ...prev,
+            [rowId]: {
+                ...prev[rowId],
+                [field]: value
+            }
+        }));
     };
 
     const validateForm = () => {
@@ -223,7 +262,14 @@ const BillForm = ({ user }) => {
             const submitData = {
                 ...billData,
                 items,
+                selectedRecords: selectedRows.map(row => ({
+                    ...row,
+                    fee: selectedRowsData[row._id]?.fee || "",
+                    leadNumber: selectedRowsData[row._id]?.leadNumber || ""
+                }))
             };
+
+            console.log("[BillForm] Submitting data with selectedRecords:", submitData.selectedRecords);
 
             let response;
             if (id) {
@@ -728,6 +774,66 @@ const BillForm = ({ user }) => {
                                         </div>
                                     </div>
                                 </div>
+
+                                {/* Selected Rows Table */}
+                                {selectedRows.length > 0 && (
+                                    <div className="border-t pt-4">
+                                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                            <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                                            Selected Records ({selectedRows.length})
+                                        </h2>
+                                        <div className="overflow-x-auto rounded-lg border border-neutral-300">
+                                             <table className="w-full text-sm">
+                                                  <thead className="bg-neutral-100 border-b border-neutral-300">
+                                                      <tr>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Clnt</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Lead Number</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Addr</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Mobile</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Bank</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">City</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Fee</th>
+                                                      </tr>
+                                                  </thead>
+                                                  <tbody>
+                                                      {selectedRows.map((row, index) => (
+                                                          <tr key={index} className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors">
+                                                              <td className="px-4 py-2 font-semibold text-neutral-900">{row.clnt}</td>
+                                                              <td className="px-4 py-2">
+                                                                  <input
+                                                                      type="text"
+                                                                      value={selectedRowsData[row._id]?.leadNumber || ""}
+                                                                      onChange={(e) => handleSelectedRowDataChange(row._id, "leadNumber", e.target.value)}
+                                                                      placeholder="Enter lead number"
+                                                                      className="w-full px-2 py-1 border border-neutral-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                                                                  />
+                                                              </td>
+                                                              <td className="px-4 py-2 font-semibold text-neutral-700 max-w-xs truncate">{row.addr}</td>
+                                                              <td className="px-4 py-2 font-semibold text-neutral-700">{row.mobile}</td>
+                                                              <td className="px-4 py-2 font-semibold text-neutral-700">{row.bank}</td>
+                                                              <td className="px-4 py-2 font-semibold text-neutral-700">{row.city}</td>
+                                                              <td className="px-4 py-2">
+                                                                  <input
+                                                                      type="number"
+                                                                      value={selectedRowsData[row._id]?.fee || ""}
+                                                                      onChange={(e) => handleSelectedRowDataChange(row._id, "fee", e.target.value)}
+                                                                      placeholder="0.00"
+                                                                      className="w-full px-2 py-1 border border-neutral-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                                                                  />
+                                                              </td>
+                                                          </tr>
+                                                      ))}
+                                                      <tr className="bg-neutral-100 border-t-2 border-neutral-300">
+                                                          <td colSpan="6" className="px-4 py-3 text-right font-bold text-neutral-900">Total Fee:</td>
+                                                          <td className="px-4 py-3 font-bold text-neutral-900 bg-blue-50">
+                                                              ₹{selectedRows.reduce((sum, row) => sum + (parseFloat(selectedRowsData[row._id]?.fee) || 0), 0).toFixed(2)}
+                                                          </td>
+                                                      </tr>
+                                                  </tbody>
+                                              </table>
+                                          </div>
+                                    </div>
+                                )}
 
                                 {/* Action Buttons */}
                                 <div className="border-t pt-6 flex gap-4">

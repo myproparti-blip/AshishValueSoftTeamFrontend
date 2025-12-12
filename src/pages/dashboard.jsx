@@ -19,6 +19,7 @@ import ReworkModal from "../components/ReworkModal";
 import StatusGraph from "../components/StatusGraph";
 import { getFormRouteForBank, isBofMaharashtraBank } from "../config/bankFormMapping";
 import { streamAIResponse } from "../services/aiService";
+import { FaFileInvoice } from 'react-icons/fa';
 
 const DashboardPage = ({ user, onLogout, onLogin }) => {
     const navigate = useNavigate();
@@ -601,6 +602,30 @@ useEffect(() => {
         });
     };
 
+    const navigateToBillForm = (selectedRecords) => {
+    // Extract only the required fields: Clnt, Addr, Mobile, Bank, City
+    const selectedData = selectedRecords.map(record => ({
+    clnt: record.clientName,
+    addr: record.address,
+    mobile: record.mobileNumber,
+    bank: record.bankName,
+    city: record.city,
+    // Keep original _id for reference if needed
+    _id: record._id
+    }));
+    
+    // Store in localStorage for persistence
+    localStorage.setItem('selectedValuationForms', JSON.stringify(selectedData));
+    
+    // Navigate to bill form with state
+    navigate('/bills/create', { 
+    state: { 
+      selectedRows: selectedData,
+      fromValuation: true 
+    } 
+    });
+    };
+
     // Recalculate status counts when files change
     const pendingCount = files.filter(f => normalizeStatus(f.status) === "pending").length;
     const onProgressCount = files.filter(f => normalizeStatus(f.status) === "on-progress").length;
@@ -787,9 +812,6 @@ useEffect(() => {
                         icon={FaCheckCircle}
                     />
                 </div>
-
-
-
                 {/* Analytics Graphs */}
                 {files.length > 0 && (
                     <div className="mt-8 sm:mt-10">
@@ -840,6 +862,20 @@ useEffect(() => {
                                     >
                                         Copy {selectedRows.size}
                                     </Button>
+                                    <Button
+      variant="success"
+      size="sm"
+      onClick={() => {
+        const selectedRecords = files.filter(r => selectedRows.has(r._id));
+        if (selectedRecords.length > 0) {
+          navigateToBillForm(selectedRecords);
+        }
+      }}
+      className="text-xs sm:text-sm px-3 sm:px-4 bg-green-600 hover:bg-green-700 text-white font-bold shadow-premium-md hover:shadow-premium-lg transition-all duration-300 border border-green-700"
+    >
+      <FaFileInvoice className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+      Create Bill ({selectedRows.size})
+    </Button>
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -1259,4 +1295,4 @@ useEffect(() => {
         </div>
     );
 };
-export default DashboardPage;
+export default DashboardPage;  

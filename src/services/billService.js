@@ -26,7 +26,9 @@ const getAuthParams = () => {
 
 // Create a new bill
 export const createBill = async (billData) => {
+  console.log("[billService] Creating bill with data:", billData);
   const response = await api.post("/bills", billData);
+  console.log("[billService] Bill created response:", response.data);
   return response.data;
 };
 
@@ -46,8 +48,10 @@ export const getBillById = async (billNumber) => {
 
 // Update bill
 export const updateBill = async (billNumber, billData) => {
+  console.log("[billService] Updating bill with data:", billData);
   const authParams = getAuthParams();
   const response = await api.put(`/bills/${billNumber}`, billData, { params: authParams });
+  console.log("[billService] Bill updated response:", response.data);
   return response.data;
 };
 

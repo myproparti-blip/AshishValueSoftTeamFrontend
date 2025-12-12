@@ -77,7 +77,6 @@ const BillDetailPage = ({ user }) => {
             </div>
         </div>
     );
-
     if (error) {
         return <ErrorState message={error} />;
     }
@@ -209,10 +208,7 @@ const BillDetailPage = ({ user }) => {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="p-6 overflow-y-auto flex-1">
-                            {/* Invoice Header */}
-                            <div className="border-b-2 pb-6 mb-6">
-                                <h2 className="text-3xl font-bold text-neutral-900">TAX INVOICE</h2>
-                            </div>
+
 
                             <div className="grid grid-cols-3 gap-6 mb-8">
                                 {/* Vendor Details */}
@@ -455,86 +451,78 @@ const BillDetailPage = ({ user }) => {
                                 </div>
                             )}
 
-                            {/* Bill Summary Table - Added at the end */}
-                            <div className="mt-8 pt-6 border-t border-neutral-200">
-                                <h3 className="font-bold mb-4 text-neutral-900 flex items-center gap-2">
-                                    <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
-                                    BILL SUMMARY
-                                </h3>
-                                <table className="w-full border border-neutral-300">
-                                    <thead>
-                                        <tr className="bg-neutral-100 border-b border-neutral-300">
-                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
-                                                Description
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
-                                                Bill Number
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
-                                                Bill Month
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
-                                                Bill Date
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
-                                                Total Items
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
-                                                Total Amount
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
-                                                Total GST
-                                            </th>
-                                            <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
-                                                Grand Total
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors duration-200">
-                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
-                                                Tax Invoice
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
-                                                {bill.billNumber}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
-                                                {bill.billMonth}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
-                                                {bill.billDate}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
-                                                {totalItems}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-semibold text-neutral-700">
-                                                ₹{totalAmount?.toFixed(2) || "0.00"}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-semibold text-neutral-700">
-                                                ₹{totalGst?.toFixed(2) || "0.00"}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-blue-600">
-                                                ₹{grandTotal?.toFixed(2) || "0.00"}
-                                            </td>
-                                        </tr>
-                                        {/* Summary Row */}
-                                        <tr className="bg-neutral-100 border-t-2 border-neutral-400">
-                                            <td colSpan="5" className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
-                                                FINAL SUMMARY
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
-                                                ₹{totalAmount?.toFixed(2) || "0.00"}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
-                                                ₹{totalGst?.toFixed(2) || "0.00"}
-                                            </td>
-                                            <td className="border border-neutral-300 px-4 py-3 text-right text-lg font-bold text-blue-600">
-                                                ₹{grandTotal?.toFixed(2) || "0.00"}
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
+                            {/* Selected Records Table */}
+                            {bill.selectedRecords && bill.selectedRecords.length > 0 && (
+                                <div className="mt-8 pt-6 border-t border-neutral-200">
+                                    <h3 className="font-bold mb-4 text-neutral-900 flex items-center gap-2">
+                                        <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
+                                        SELECTED RECORDS
+                                    </h3>
+                                    <table className="w-full border border-neutral-300">
+                                        <thead>
+                                            <tr className="bg-neutral-100 border-b border-neutral-300">
+                                                <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                    Clnt
+                                                </th>
+                                                <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                    Lead Number
+                                                </th>
+                                                <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                    Addr
+                                                </th>
+                                                <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                    Mobile
+                                                </th>
+                                                <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                    Bank
+                                                </th>
+                                                <th className="border border-neutral-300 px-4 py-3 text-left text-sm font-bold text-neutral-900">
+                                                    City
+                                                </th>
+                                                <th className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                    Fee
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {bill.selectedRecords.map((record, index) => (
+                                                <tr key={index} className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors duration-200">
+                                                    <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                        {record.clnt}
+                                                    </td>
+                                                    <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                        {record.leadNumber}
+                                                    </td>
+                                                    <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700 max-w-xs truncate">
+                                                        {record.addr}
+                                                    </td>
+                                                    <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                        {record.mobile}
+                                                    </td>
+                                                    <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                        {record.bank}
+                                                    </td>
+                                                    <td className="border border-neutral-300 px-4 py-3 text-sm font-semibold text-neutral-700">
+                                                        {record.city}
+                                                    </td>
+                                                    <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-semibold text-neutral-700">
+                                                        ₹{parseFloat(record.fee || 0).toFixed(2)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                            {/* Total Fee Row */}
+                                            <tr className="bg-neutral-100 border-t-2 border-neutral-400">
+                                                <td colSpan="6" className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-neutral-900">
+                                                    TOTAL FEE
+                                                </td>
+                                                <td className="border border-neutral-300 px-4 py-3 text-right text-sm font-bold text-blue-600">
+                                                    ₹{bill.selectedRecords.reduce((sum, record) => sum + (parseFloat(record.fee || 0)), 0).toFixed(2)}
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
 
                             {/* Signature Section */}
                             <div className="border-t pt-6 grid grid-cols-3 gap-8 mt-8">
@@ -561,14 +549,332 @@ const BillDetailPage = ({ user }) => {
             {/* Print Styles */}
             <style>{`
                 @media print {
-                    body {
-                        background: white;
+                    @page {
+                        size: A4;
+                        margin: 0.5in;
+                        margin-top: 0;
+                        margin-bottom: 0;
                     }
-                    .print\\:shadow-none {
-                        box-shadow: none;
+                    
+                    * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
                     }
-                    .print\\:border-0 {
-                        border: 0;
+                    
+                    body, html {
+                        background: white !important;
+                        color: #1f2937;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        font-size: 11px;
+                        line-height: 1.4;
+                        width: 100%;
+                        height: auto;
+                        margin: 0 !important;
+                        padding: 0 !important;
+                    }
+                    
+                    /* Hide all print headers and footers */
+                    body::before,
+                    body::after {
+                        display: none !important;
+                    }
+                    
+                    /* Hide header and navigation */
+                    .flex.items-center.gap-3.mb-4,
+                    header {
+                        display: none !important;
+                    }
+                    
+                    /* Hide sidebar on print */
+                    .col-span-12.sm\\:col-span-3.lg\\:col-span-2 {
+                        display: none !important;
+                    }
+                    
+                    /* Main content full width */
+                    .col-span-12.sm\\:col-span-9.lg\\:col-span-10 {
+                        grid-column: span 12 !important;
+                        max-width: 100%;
+                    }
+                    
+                    /* Grid layout */
+                    .grid.grid-cols-12 {
+                        display: block !important;
+                        height: auto !important;
+                    }
+                    
+                    .grid {
+                        display: block !important;
+                    }
+                    
+                    .grid.grid-cols-3 {
+                        display: grid !important;
+                        grid-template-columns: 1fr 1fr 1fr !important;
+                        gap: 12px !important;
+                        margin-bottom: 20px !important;
+                    }
+                    
+                    .grid.grid-cols-1.md\\:grid-cols-2 {
+                        display: grid !important;
+                        grid-template-columns: 1fr 1fr !important;
+                        gap: 20px !important;
+                    }
+                    
+                    /* Card styling */
+                    [class*="Card"] {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                        box-shadow: none !important;
+                        border: 1px solid #d1d5db !important;
+                        margin-bottom: 0 !important;
+                    }
+                    
+                    .bg-white {
+                        background: white !important;
+                    }
+                    
+                    .overflow-y-auto,
+                    .h-full,
+                    .h-\\[calc\\(100vh-140px\\)\\],
+                    .flex-1 {
+                        overflow: visible !important;
+                        height: auto !important;
+                    }
+                    
+                    /* Invoice heading - hide in print */
+                    h2.text-3xl {
+                        display: none !important;
+                    }
+                    
+                    h3 {
+                        font-size: 12px !important;
+                        font-weight: 700 !important;
+                        margin-bottom: 12px !important;
+                        text-transform: uppercase;
+                        letter-spacing: 0.5px;
+                    }
+                    
+                    /* Detail boxes */
+                    .bg-neutral-50 {
+                        background-color: #f3f4f6 !important;
+                    }
+                    
+                    .border-neutral-200 {
+                        border-color: #d1d5db !important;
+                    }
+                    
+                    .rounded-lg {
+                        border-radius: 4px !important;
+                    }
+                    
+                    .p-4 {
+                        padding: 12px !important;
+                    }
+                    
+                    /* Section dividers */
+                    .border-b-2 {
+                        border-bottom: 2px solid #000 !important;
+                        padding-bottom: 12px !important;
+                        margin-bottom: 20px !important;
+                    }
+                    
+                    .border-t {
+                        border-top: 1px solid #d1d5db !important;
+                        page-break-inside: avoid;
+                        margin-top: 20px !important;
+                        padding-top: 20px !important;
+                    }
+                    
+                    .border-b {
+                        border-bottom: 1px solid #d1d5db !important;
+                    }
+                    
+                    /* Table styling - professional appearance */
+                    table {
+                        width: 100%;
+                        border-collapse: collapse;
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                        margin: 16px 0;
+                    }
+                    
+                    table.w-full {
+                        width: 100%;
+                    }
+                    
+                    th {
+                        background-color: #1f2937 !important;
+                        color: white !important;
+                        font-weight: 700 !important;
+                        text-align: left;
+                        padding: 10px 8px !important;
+                        border: 1px solid #000 !important;
+                        font-size: 11px;
+                    }
+                    
+                    td {
+                        border: 1px solid #d1d5db !important;
+                        padding: 8px !important;
+                        text-align: left;
+                        font-size: 10px;
+                    }
+                    
+                    thead {
+                        background-color: #1f2937 !important;
+                    }
+                    
+                    tbody tr {
+                        break-inside: avoid;
+                        page-break-inside: avoid;
+                    }
+                    
+                    tbody tr:nth-child(even) {
+                        background-color: #f9fafb !important;
+                    }
+                    
+                    .bg-neutral-100 {
+                        background-color: #f3f4f6 !important;
+                        font-weight: 600;
+                    }
+                    
+                    .bg-blue-500 {
+                        background-color: #1f2937 !important;
+                        color: white !important;
+                    }
+                    
+                    /* Text alignment for amounts */
+                    td.text-right {
+                        text-align: right !important;
+                    }
+                    
+                    th.text-right {
+                        text-align: right !important;
+                    }
+                    
+                    /* Font weights and colors */
+                    .font-bold {
+                        font-weight: 700 !important;
+                    }
+                    
+                    .font-semibold {
+                        font-weight: 600 !important;
+                    }
+                    
+                    .text-neutral-900,
+                    .text-black {
+                        color: #000 !important;
+                    }
+                    
+                    .text-neutral-700 {
+                        color: #374151 !important;
+                    }
+                    
+                    .text-blue-600,
+                    .text-blue-500 {
+                        color: #1f2937 !important;
+                    }
+                    
+                    .text-white {
+                        color: white !important;
+                    }
+                    
+                    /* Spacing adjustments */
+                    .mb-8 {
+                        margin-bottom: 16px !important;
+                    }
+                    
+                    .mb-6 {
+                        margin-bottom: 12px !important;
+                    }
+                    
+                    .mb-4 {
+                        margin-bottom: 8px !important;
+                    }
+                    
+                    .mb-3 {
+                        margin-bottom: 6px !important;
+                    }
+                    
+                    .mb-2 {
+                        margin-bottom: 4px !important;
+                    }
+                    
+                    .mt-8 {
+                        margin-top: 16px !important;
+                    }
+                    
+                    .pt-6 {
+                        padding-top: 12px !important;
+                    }
+                    
+                    .pb-6 {
+                        padding-bottom: 12px !important;
+                    }
+                    
+                    /* Signature section */
+                    .grid.grid-cols-3 {
+                        grid-template-columns: 1fr 1fr 1fr !important;
+                        gap: 24px !important;
+                        margin-top: 40px !important;
+                    }
+                    
+                    /* Content visibility */
+                    .whitespace-pre-wrap {
+                        white-space: pre-wrap !important;
+                    }
+                    
+                    .max-w-xs {
+                        max-width: 100% !important;
+                    }
+                    
+                    .truncate {
+                        overflow: visible !important;
+                        text-overflow: clip !important;
+                        white-space: normal !important;
+                    }
+                    
+                    /* Icon styling - hide or simplify */
+                    svg {
+                        display: none !important;
+                    }
+                    
+                    /* Flex containers */
+                    .flex {
+                        display: block !important;
+                    }
+                    
+                    .flex-1 {
+                        flex: auto !important;
+                    }
+                    
+                    /* Gaps */
+                    .gap-3, .gap-2, .gap-6, .gap-8 {
+                        gap: 0 !important;
+                    }
+                    
+                    /* Print optimization */
+                    .border-neutral-300 {
+                        border-color: #d1d5db !important;
+                    }
+                    
+                    /* Ensure declaration is visible */
+                    .italic {
+                        font-style: italic !important;
+                    }
+                    
+                    /* Page break handling */
+                    .mt-8 {
+                        page-break-inside: avoid;
+                    }
+                    
+                    /* Hide browser URL and footer */
+                    @page {
+                        margin-bottom: 0;
+                    }
+                    
+                    /* Hide page numbers and URL */
+                    h2.text-3xl {
+                        display: block !important;
                     }
                 }
             `}</style>
