@@ -316,20 +316,20 @@ const StatusGraph = ({ files, isCompact = false }) => {
                             <div className="relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
                                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-transparent to-blue-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative z-10 p-5">
-                                    <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
-                                        <div className="w-1.5 h-8 bg-gradient-to-b from-blue-600 to-blue-400 rounded-full shadow-lg"></div>
-                                        <p className="text-sm font-bold text-gray-800 uppercase tracking-widest">Submission Status Breakdown</p>
+                                <div className="relative z-10 p-4">
+                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                        <div className="w-1.5 h-6 bg-gradient-to-b from-blue-600 to-blue-400 rounded-full shadow-lg"></div>
+                                        <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Submission Status Breakdown</p>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={120}>
+                                    <ResponsiveContainer width="100%" height={60}>
                                         <BarChart
                                             data={statusData}
-                                            margin={{ top: 10, right: 30, left: 10, bottom: 30 }}
+                                            margin={{ top: 5, right: 20, left: 5, bottom: 15 }}
                                             layout="vertical"
                                         >
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={true} vertical={false} />
-                                            <XAxis type="number" stroke="#374151" fontSize={12} fontWeight="600" />
-                                            <YAxis type="category" dataKey="name" stroke="#374151" fontSize={11} fontWeight="600" width={100} />
+                                            <XAxis type="number" stroke="#374151" fontSize={11} fontWeight="600" />
+                                            <YAxis type="category" dataKey="name" stroke="#374151" fontSize={10} fontWeight="600" width={100} />
                                             <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(59, 130, 246, 0.1)" }} />
                                             <Bar dataKey="value" radius={[0, 16, 16, 0]} animationDuration={1000} isAnimationActive={true}>
                                                 {statusData.map((entry, index) => (
@@ -372,12 +372,12 @@ const StatusGraph = ({ files, isCompact = false }) => {
                             <div className="relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
                                 <div className="absolute inset-0 bg-gradient-to-br from-green-50/60 via-transparent to-green-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-green-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative z-10 p-5">
-                                    <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
-                                        <div className="w-1.5 h-8 bg-gradient-to-b from-green-600 to-green-400 rounded-full shadow-lg"></div>
-                                        <p className="text-sm font-bold text-gray-800 uppercase tracking-widest">Payment Collection Distribution</p>
+                                <div className="relative z-10 p-4">
+                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                        <div className="w-1.5 h-6 bg-gradient-to-b from-green-600 to-green-400 rounded-full shadow-lg"></div>
+                                        <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Payment Collection Distribution</p>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={140}>
+                                    <ResponsiveContainer width="100%" height={70}>
                                         <PieChart>
                                             <Pie
                                                 data={paymentData}
@@ -387,8 +387,8 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                                 label={({ name, value, percent }) =>
                                                     `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
                                                 }
-                                                outerRadius={48}
-                                                innerRadius={20}
+                                                outerRadius={30}
+                                                innerRadius={12}
                                                 dataKey="value"
                                                 animationDuration={1200}
                                                 isAnimationActive={true}
@@ -456,12 +456,12 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                 <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
                                     <div className="absolute inset-0 bg-gradient-to-br from-purple-50/60 via-transparent to-purple-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative z-10 p-5">
-                                        <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
-                                            <div className="w-1.5 h-8 bg-gradient-to-b from-purple-600 to-purple-400 rounded-full shadow-lg"></div>
-                                            <p className="text-sm font-bold text-gray-800 uppercase tracking-widest">Market Share Distribution</p>
+                                    <div className="relative z-10 p-4">
+                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                            <div className="w-1.5 h-6 bg-gradient-to-b from-purple-600 to-purple-400 rounded-full shadow-lg"></div>
+                                            <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Market Share Distribution</p>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={140}>
+                                        <ResponsiveContainer width="100%" height={70}>
                                             <PieChart>
                                                 <Pie
                                                     data={bankData}
@@ -469,8 +469,8 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                                     cy="50%"
                                                     labelLine={true}
                                                     label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                                                    outerRadius={50}
-                                                    innerRadius={22}
+                                                    outerRadius={30}
+                                                    innerRadius={13}
                                                     dataKey="value"
                                                     animationDuration={1200}
                                                     isAnimationActive={true}
@@ -539,24 +539,24 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                 <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
                                     <div className="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-transparent to-amber-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative z-10 p-5">
-                                        <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
-                                            <div className="w-1.5 h-8 bg-gradient-to-b from-amber-600 to-amber-400 rounded-full shadow-lg"></div>
-                                            <p className="text-sm font-bold text-gray-800 uppercase tracking-widest">City-wise Submission Volume</p>
+                                    <div className="relative z-10 p-4">
+                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                            <div className="w-1.5 h-6 bg-gradient-to-b from-amber-600 to-amber-400 rounded-full shadow-lg"></div>
+                                            <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">City-wise Submission Volume</p>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={130}>
-                                            <BarChart data={cityData} margin={{ top: 10, right: 30, left: 10, bottom: 40 }}>
+                                        <ResponsiveContainer width="100%" height={65}>
+                                            <BarChart data={cityData} margin={{ top: 5, right: 20, left: 10, bottom: 35 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#fed7aa" horizontal={true} vertical={false} />
                                                 <XAxis
                                                     dataKey="name"
                                                     stroke="#b45309"
-                                                    fontSize={10}
+                                                    fontSize={9}
                                                     fontWeight="600"
                                                     angle={-45}
                                                     textAnchor="end"
-                                                    height={50}
+                                                    height={35}
                                                 />
-                                                <YAxis stroke="#b45309" fontSize={12} fontWeight="600" />
+                                                <YAxis stroke="#b45309" fontSize={11} fontWeight="600" />
                                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(251, 146, 60, 0.15)" }} />
                                                 <Bar dataKey="count" fill="#f59e0b" radius={[12, 12, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
                                             </BarChart>
@@ -614,16 +614,16 @@ const StatusGraph = ({ files, isCompact = false }) => {
                             <div className="relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
                                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/60 via-transparent to-indigo-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                                 <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative z-10 p-5">
-                                    <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
-                                        <div className="w-1.5 h-8 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full shadow-lg"></div>
-                                        <p className="text-sm font-bold text-gray-800 uppercase tracking-widest">Monthly Submission Trends</p>
+                                <div className="relative z-10 p-4">
+                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                        <div className="w-1.5 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full shadow-lg"></div>
+                                        <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Monthly Submission Trends</p>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={140}>
-                                        <ComposedChart data={analyticsData.monthlyData} margin={{ top: 10, right: 30, left: 10, bottom: 25 }}>
+                                    <ResponsiveContainer width="100%" height={70}>
+                                        <ComposedChart data={analyticsData.monthlyData} margin={{ top: 5, right: 20, left: 10, bottom: 20 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" horizontal={true} vertical={false} />
-                                            <XAxis dataKey="name" stroke="#312e81" fontSize={10} fontWeight="600" />
-                                            <YAxis stroke="#312e81" fontSize={10} fontWeight="600" />
+                                            <XAxis dataKey="name" stroke="#312e81" fontSize={9} fontWeight="600" />
+                                            <YAxis stroke="#312e81" fontSize={9} fontWeight="600" />
                                             <Tooltip content={<CustomTooltip />} />
                                             <Legend wrapperStyle={{ paddingTop: "8px", fontSize: "12px" }} />
                                             <Area type="monotone" dataKey="submissions" fill="#4f46e5" stroke="#4f46e5" fillOpacity={0.2} strokeWidth={2} isAnimationActive={true} animationDuration={1000} />
@@ -690,24 +690,24 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                 <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
                                     <div className="absolute inset-0 bg-gradient-to-br from-pink-50/60 via-transparent to-pink-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
                                     <div className="absolute -top-24 -right-24 w-48 h-48 bg-pink-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative z-10 p-5">
-                                        <div className="flex items-center gap-3 mb-6 pb-4 border-b-2 border-gray-200">
-                                            <div className="w-1.5 h-8 bg-gradient-to-b from-pink-600 to-pink-400 rounded-full shadow-lg"></div>
-                                            <p className="text-sm font-bold text-gray-800 uppercase tracking-widest">Performance Distribution</p>
+                                    <div className="relative z-10 p-4">
+                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
+                                            <div className="w-1.5 h-6 bg-gradient-to-b from-pink-600 to-pink-400 rounded-full shadow-lg"></div>
+                                            <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Performance Distribution</p>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={140}>
-                                            <BarChart data={analyticsData.engineerStats} margin={{ top: 10, right: 30, left: 10, bottom: 45 }}>
+                                        <ResponsiveContainer width="100%" height={70}>
+                                            <BarChart data={analyticsData.engineerStats} margin={{ top: 5, right: 20, left: 10, bottom: 40 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#fbcfe8" horizontal={true} vertical={false} />
                                                 <XAxis
                                                     dataKey="name"
                                                     stroke="#be185d"
-                                                    fontSize={10}
+                                                    fontSize={9}
                                                     fontWeight="600"
                                                     angle={-45}
                                                     textAnchor="end"
                                                     height={50}
                                                 />
-                                                <YAxis stroke="#be185d" fontSize={10} fontWeight="600" />
+                                                <YAxis stroke="#be185d" fontSize={9} fontWeight="600" />
                                                 <Tooltip content={<CustomTooltip />} />
                                                 <Legend wrapperStyle={{ paddingTop: "10px", fontSize: "12px" }} />
                                                 <Bar dataKey="approved" fill="#10b981" radius={[8, 8, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />

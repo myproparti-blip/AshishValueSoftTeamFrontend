@@ -194,3 +194,40 @@ export const uploadLocationImages = async (locationImagePreviews, uniqueId) => {
     handleError(error, "Failed to upload location images");
   }
 };
+
+/**
+ * Upload documents (PDFs, reports, etc.)
+ * @param {Object[]} documentPreviews - Array of document preview objects
+ * @param {String} uniqueId - Unique ID for the valuation
+ * @returns {Promise} Array of uploaded document data
+ */
+export const uploadDocuments = async (documentPreviews, uniqueId) => {
+  try {
+    // Filter valid documents
+    const validDocuments = documentPreviews.filter(doc => doc && doc.file);
+    
+    if (validDocuments.length === 0) {
+      return [];
+    }
+
+    // Upload all documents in parallel
+    const uploadPromises = validDocuments.map(({ file }) => {
+      const formData = new FormData();
+      formData.append('documents', file);
+      formData.append('folderPath', `valuations/${uniqueId}/documents`);
+      
+      return api.post("/documents/upload", formData)
+        .then(response => {
+          if (response.data.documents && response.data.documents.length > 0) {
+            return response.data.documents[0];
+          }
+          return null;
+        });
+    });
+
+    const uploadedDocuments = await Promise.all(uploadPromises);
+    return uploadedDocuments.filter(doc => doc !== null);
+  } catch (error) {
+    handleError(error, "Failed to upload documents");
+  }
+};

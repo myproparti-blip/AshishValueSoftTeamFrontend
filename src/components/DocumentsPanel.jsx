@@ -1,20 +1,20 @@
 import React, { useRef } from "react";
-import { 
-    FaMapMarkerAlt, 
-    FaImage, 
-    FaLocationArrow, 
-    FaUpload, 
-    FaFileAlt 
+import {
+    FaMapMarkerAlt,
+    FaImage,
+    FaLocationArrow,
+    FaUpload,
+    FaFileAlt
 } from "react-icons/fa";
-import { 
-    Button, 
-    Card, 
-    CardContent, 
-    CardHeader, 
-    CardTitle, 
-    Input, 
-    Label, 
-    Textarea 
+import {
+    Button,
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+    Input,
+    Label,
+    Textarea
 } from "./ui";
 
 const DocumentsPanel = ({
@@ -22,10 +22,13 @@ const DocumentsPanel = ({
     canEdit,
     locationImagePreviews,
     imagePreviews,
+    documentPreviews,
     handleLocationImageUpload,
     handleImageUpload,
+    handleDocumentUpload,
     removeLocationImage,
     removeImage,
+    removeDocument,
     handleInputChange,
     handleCoordinateChange,
     setFormData,
@@ -33,10 +36,11 @@ const DocumentsPanel = ({
     fileInputRef1,
     fileInputRef2,
     fileInputRef3,
-    fileInputRef4
+    fileInputRef4,
+    documentFileInputRef
 }) => {
     return (
-        <>
+        <div className="space-y-8">
             {/* Location Images Section */}
             <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
@@ -139,7 +143,87 @@ const DocumentsPanel = ({
                 </div>
             </div>
 
-            <div className="border-t-2 border-gray-200"></div>
+            {/* Supporting Images Section */}
+            <div>
+                <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+                    <FaImage className="h-5 w-5 text-orange-600" />
+                    Supporting Images
+                </h3>
+                <div className="space-y-6">
+
+                    {/* Supporting Images Upload Card - Matching Location Images structure */}
+                    <Card className="border">
+                        <CardHeader className="border-b">
+                            <CardTitle className="flex items-center gap-2">
+                                <FaImage className="h-5 w-5" />
+                                Supporting Images
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-6">
+                            <div className="space-y-4">
+                                {documentFileInputRef && (
+                                    <input
+                                        type="file"
+                                        ref={documentFileInputRef}
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleDocumentUpload}
+                                        style={{ display: 'none' }}
+                                        disabled={!canEdit}
+                                    />
+                                )}
+                                <Button
+                                    type="button"
+                                    onClick={() => documentFileInputRef?.current?.click()}
+                                    className="flex items-center gap-2"
+                                    disabled={!canEdit}
+                                >
+                                    <FaUpload className="h-4 w-4" />
+                                    Upload Supporting Images
+                                </Button>
+
+                                {/* Uploaded Supporting Images Grid Preview */}
+                                {documentPreviews?.length > 0 && (
+                                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                                        {documentPreviews.map((doc, index) => (
+                                            <Card key={index} className="relative border border-gray-200 shadow-sm">
+                                                <CardContent className="p-0">
+                                                    {doc.url ? (
+                                                        <>
+                                                            <img
+                                                                src={doc.url}
+                                                                alt={doc.fileName}
+                                                                className="w-full h-32 object-cover rounded-t-lg"
+                                                            />
+                                                            <div className="p-3 rounded-b-lg">
+                                                                <p className="text-xs font-medium text-gray-900 truncate" title={doc.fileName}>{doc.fileName}</p>
+                                                                <p className="text-xs text-gray-500">{doc.size ? Math.round(doc.size / 1024) : ''}KB</p>
+                                                            </div>
+                                                        </>
+                                                    ) : (
+                                                        <div className="w-full h-32 bg-gray-100 rounded-t-lg flex items-center justify-center">
+                                                            <FaImage className="h-8 w-8 text-gray-300" />
+                                                        </div>
+                                                    )}
+                                                    <Button
+                                                        type="button"
+                                                        onClick={() => removeDocument(index)}
+                                                        className="absolute -top-2 -right-2 w-6 h-6 rounded-full p-0 bg-red-500 hover:bg-red-600"
+                                                        size="sm"
+                                                        disabled={!canEdit}
+                                                    >
+                                                        ×
+                                                    </Button>
+                                                </CardContent>
+                                            </Card>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
+            </div>
 
             {/* Property Images Section */}
             <div>
@@ -234,7 +318,7 @@ const DocumentsPanel = ({
             </div>
 
             {/* Notes Section */}
-            <div className="mt-6">
+            <div>
                 <h3 className="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
                     <FaFileAlt className="h-5 w-5 text-orange-600" />
                     Additional Notes
@@ -251,7 +335,7 @@ const DocumentsPanel = ({
                     />
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 

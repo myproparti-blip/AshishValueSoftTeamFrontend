@@ -27,7 +27,7 @@ import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Inpu
 import { getBofMaharastraById, updateBofMaharashtra, managerSubmitBofMaharashtra, requestReworkBofMaharashtra } from "../services/bomFlatService";
 import { showLoader, hideLoader } from "../redux/slices/loaderSlice";
 import { useNotification } from "../context/NotificationContext";
-import { uploadPropertyImages, uploadLocationImages } from "../services/imageService";
+import { uploadPropertyImages, uploadLocationImages, uploadDocuments } from "../services/imageService";
 import { invalidateCache } from "../services/axios";
 import { getCustomOptions } from "../services/customOptionsService";
 import ClientInfoPanel from "../components/ClientInfoPanel";
@@ -108,6 +108,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
         // IMAGES
         propertyImages: [],
         locationImages: [],
+        documentPreviews: [],
         photos: {
             elevationImages: [],
             siteImages: []
@@ -463,6 +464,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
     const fileInputRef3 = useRef(null);
     const fileInputRef4 = useRef(null);
     const locationFileInputRef = useRef(null);
+    const documentFileInputRef = useRef(null);
 
     const username = user?.username || "";
     const role = user?.role || "";
@@ -611,6 +613,14 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                         return { url: previewUrl, name: img.name || `Location Image ${idx + 1}`, path: img.path || img.fileName || '' };
                     });
                 setLocationImagePreviews(locationPreviews);
+            }
+
+            // Restore document previews from database
+            if (dbData.documentPreviews && Array.isArray(dbData.documentPreviews)) {
+                setFormData(prev => ({
+                    ...prev,
+                    documentPreviews: dbData.documentPreviews
+                }));
             }
 
             setBankName(dbData.bankName || "");
@@ -832,6 +842,83 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
         setImagePreviews(prev => prev.filter((_, i) => i !== index));
     };
 
+    const handleDocumentUpload = async (e) => {
+        const files = e.target.files;
+        if (!files) return;
+
+        // Add local previews immediately
+        const filesToAdd = Array.from(files).map((file) => {
+            const preview = URL.createObjectURL(file);
+            return { file, preview, fileName: file.name, size: file.size, isImage: true };
+        });
+
+        // Display local previews
+        const localPreviews = filesToAdd.map(f => ({
+            preview: f.preview,
+            file: f.file,
+            fileName: f.fileName,
+            size: f.size
+        }));
+
+        setFormData(prev => ({
+            ...prev,
+            documentPreviews: [
+                ...(prev.documentPreviews || []),
+                ...localPreviews
+            ]
+        }));
+
+        try {
+            // Upload images using same service as Property Images with compression
+            const uploadPromises = filesToAdd.map(f => ({ file: f.file, inputNumber: 1 }));
+            const uploadedImages = await uploadPropertyImages(uploadPromises, valuation.uniqueId);
+
+            // Update with actual uploaded URLs (replace local previews)
+            setFormData(prev => {
+                const newPreviews = [...(prev.documentPreviews || [])];
+                let uploadIndex = 0;
+                
+                // Update the last N items (where N = uploadedImages.length) with actual URLs
+                for (let i = newPreviews.length - uploadPromises.length; i < newPreviews.length && uploadIndex < uploadedImages.length; i++) {
+                    if (uploadedImages[uploadIndex]) {
+                        newPreviews[i] = {
+                            fileName: newPreviews[i].fileName,
+                            size: newPreviews[i].size,
+                            url: uploadedImages[uploadIndex].url
+                        };
+                        uploadIndex++;
+                    }
+                }
+
+                return {
+                    ...prev,
+                    documentPreviews: newPreviews
+                };
+            });
+        } catch (error) {
+            console.error('Error uploading supporting images:', error);
+            showError('Failed to upload images: ' + error.message);
+            
+            // Remove the local previews on error
+            setFormData(prev => ({
+                ...prev,
+                documentPreviews: (prev.documentPreviews || []).slice(0, -filesToAdd.length)
+            }));
+        }
+        
+        // Reset input
+        if (documentFileInputRef.current) {
+            documentFileInputRef.current.value = '';
+        }
+    };
+
+    const removeDocument = (index) => {
+        setFormData(prev => ({
+            ...prev,
+            documentPreviews: (prev.documentPreviews || []).filter((_, i) => i !== index)
+        }));
+    };
+
     const handleCoordinateChange = (field, value) => {
         setFormData(prev => ({
             ...prev,
@@ -1019,6 +1106,11 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                 coordinates: formData.coordinates,
                 propertyImages: formData.propertyImages || [],
                 locationImages: formData.locationImages || [],
+                documentPreviews: (formData.documentPreviews || []).map(doc => ({
+                    fileName: doc.fileName,
+                    size: doc.size,
+                    ...(doc.url && { url: doc.url })
+                })),
                 photos: formData.photos || { elevationImages: [], siteImages: [] },
                 status: "on-progress",
                 pdfDetails: formData.pdfDetails,
@@ -1029,8 +1121,8 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                 lastUpdatedByRole: role
             };
 
-            // Handle image uploads - parallel
-            const [uploadedPropertyImages, uploadedLocationImages] = await Promise.all([
+            // Handle image uploads - parallel (including supporting images)
+            const [uploadedPropertyImages, uploadedLocationImages, uploadedSupportingImages] = await Promise.all([
                 (async () => {
                     const newPropertyImages = imagePreviews.filter(p => p && p.file);
                     if (newPropertyImages.length > 0) {
@@ -1042,6 +1134,14 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                     const newLocationImages = locationImagePreviews.filter(p => p && p.file);
                     if (newLocationImages.length > 0) {
                         return await uploadLocationImages(newLocationImages, valuation.uniqueId);
+                    }
+                    return [];
+                })(),
+                (async () => {
+                    // Handle supporting images (documents) - upload any with file objects
+                    const newSupportingImages = (formData.documentPreviews || []).filter(d => d && d.file);
+                    if (newSupportingImages.length > 0) {
+                        return await uploadPropertyImages(newSupportingImages, valuation.uniqueId);
                     }
                     return [];
                 })()
@@ -1065,8 +1165,22 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                     }))
                 : [];
 
+            // Combine supporting images with previously saved ones
+            const previousSupportingImages = (formData.documentPreviews || [])
+                .filter(d => d && !d.file && d.url)
+                .map(d => ({
+                    fileName: d.fileName,
+                    size: d.size,
+                    url: d.url
+                }));
+
             payload.propertyImages = [...previousPropertyImages, ...uploadedPropertyImages];
             payload.locationImages = uploadedLocationImages.length > 0 ? uploadedLocationImages : previousLocationImages;
+            payload.documentPreviews = [...previousSupportingImages, ...uploadedSupportingImages.map(img => ({
+                fileName: img.originalFileName || img.publicId || 'Image',
+                size: img.bytes || img.size || 0,
+                url: img.url
+            }))];
 
             // Clear draft before API call
             localStorage.removeItem(`valuation_draft_${username}`);
@@ -4023,10 +4137,13 @@ commercial?</Label>
                                                 canEdit={canEdit}
                                                 locationImagePreviews={locationImagePreviews}
                                                 imagePreviews={imagePreviews}
+                                                documentPreviews={formData.documentPreviews || []}
                                                 handleLocationImageUpload={handleLocationImageUpload}
                                                 handleImageUpload={handleImageUpload}
+                                                handleDocumentUpload={handleDocumentUpload}
                                                 removeLocationImage={removeLocationImage}
                                                 removeImage={removeImage}
+                                                removeDocument={removeDocument}
                                                 handleInputChange={handleInputChange}
                                                 handleCoordinateChange={handleCoordinateChange}
                                                 setFormData={setFormData}
@@ -4035,6 +4152,7 @@ commercial?</Label>
                                                 fileInputRef2={fileInputRef2}
                                                 fileInputRef3={fileInputRef3}
                                                 fileInputRef4={fileInputRef4}
+                                                documentFileInputRef={documentFileInputRef}
                                             />
                                         </div>
                                     )}
