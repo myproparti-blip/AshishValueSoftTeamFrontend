@@ -107,20 +107,20 @@ const SearchBar = ({ data = [] }) => {
     return (
         <div className="relative w-full" ref={searchRef}>
             <div className="relative flex items-center">
-                <FaSearch className="absolute left-3 h-4 w-4 text-white/60 pointer-events-none" />
+                <FaSearch className="absolute left-3 h-4 w-4 text-blue-500 pointer-events-none" />
                 <input
                     type="text"
                     placeholder="Search client, city, bank..."
                     value={searchTerm}
                     onChange={(e) => handleSearch(e.target.value)}
                     onFocus={() => searchTerm.trim().length > 0 && setIsOpen(true)}
-                    className="w-full pl-10 pr-10 py-2 rounded-lg bg-white/15 text-white placeholder-white/60 border border-white/20 focus:border-white/40 focus:bg-white/20 focus:outline-none transition-all text-sm"
+                    className="w-full pl-10 pr-10 py-2 rounded-lg bg-blue-50 text-neutral-900 placeholder-neutral-500 border border-blue-300 focus:border-blue-500 focus:bg-white focus:outline-none transition-all text-sm font-medium shadow-sm"
                     aria-label="Search valuations"
                 />
                 {searchTerm && (
                     <button
                         onClick={handleClear}
-                        className="absolute right-3 text-white/60 hover:text-white transition-colors"
+                        className="absolute right-3 text-neutral-400 hover:text-neutral-600 transition-colors"
                         aria-label="Clear search"
                     >
                         <FaTimes className="h-4 w-4" />
@@ -165,9 +165,9 @@ const SearchBar = ({ data = [] }) => {
                                         </span>
                                     )}
                                     <span className={`px-2 py-0.5 rounded text-white ${item.status === "approved" ? "bg-green-600" :
-                                            item.status === "pending" ? "bg-[#F36E21]" :
-                                                item.status === "on-progress" ? "bg-[#EC5E25]" :
-                                                    "bg-red-600"
+                                        item.status === "pending" ? "bg-[#F36E21]" :
+                                            item.status === "on-progress" ? "bg-[#EC5E25]" :
+                                                "bg-red-600"
                                         }`}>
                                         {item.status}
                                     </span>
