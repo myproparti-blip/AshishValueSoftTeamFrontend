@@ -170,23 +170,23 @@ const StatusGraph = ({ files, isCompact = false }) => {
         if (active && payload && payload.length) {
             const isMultiSeries = payload.length > 1;
             return (
-                <div className="bg-gradient-to-br from-white to-gray-50 p-4 border-2 border-gray-300 rounded-xl shadow-2xl backdrop-blur-md bg-opacity-98">
-                    <p className="text-xs font-bold text-gray-800 uppercase tracking-widest mb-2">
+                <div className="bg-gradient-to-br from-white to-gray-50 p-3 border-2 border-gray-300 rounded-lg shadow-xl backdrop-blur-md bg-opacity-98">
+                    <p className="text-xs font-bold text-gray-800 uppercase tracking-widest mb-1.5">
                         {payload[0].payload.name || payload[0].name}
                     </p>
                     {isMultiSeries ? (
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                             {payload.map((item, idx) => (
-                                <div key={idx} className="flex items-center gap-2">
-                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.fill || item.color }}></div>
-                                    <span className="text-sm font-semibold text-gray-700">
+                                <div key={idx} className="flex items-center gap-1.5">
+                                    <div className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: item.fill || item.color }}></div>
+                                    <span className="text-xs font-semibold text-gray-700">
                                         {item.name}: <span className="font-bold text-gray-900">{item.value}</span>
                                     </span>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p className="text-lg font-black bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
+                        <p className="text-sm font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent">
                             {payload[0].value}
                         </p>
                     )}
@@ -211,27 +211,27 @@ const StatusGraph = ({ files, isCompact = false }) => {
         const theme = colorClasses[color];
 
         return (
-            <div className={`relative overflow-hidden rounded-2xl border-2 ${theme.border} shadow-xl hover:shadow-2xl transition-all duration-300 group hover:scale-105`}>
+            <div className={`relative overflow-hidden rounded-xl border-2 ${theme.border} shadow-lg hover:shadow-xl transition-all duration-300 group hover:scale-105`}>
                 {/* Background gradient */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${theme.light} opacity-90`}></div>
 
                 {/* Floating accent */}
-                <div className={`absolute -top-8 -right-8 w-24 h-24 bg-gradient-to-br ${theme.bg} opacity-20 rounded-full blur-2xl group-hover:scale-110 transition-transform`}></div>
+                <div className={`absolute -top-6 -right-6 w-20 h-20 bg-gradient-to-br ${theme.bg} opacity-15 rounded-full blur-2xl group-hover:scale-110 transition-transform`}></div>
 
-                <div className="relative z-10 p-4 flex items-start justify-between gap-3">
+                <div className="relative z-10 p-3 flex items-start justify-between gap-2">
                     <div className="flex-1 min-w-0">
                         <p className={`text-xs font-bold ${theme.text} uppercase tracking-widest`}>{label}</p>
-                        <p className="text-3xl font-black text-gray-900 mt-2">{value}</p>
+                        <p className="text-2xl font-black text-gray-900 mt-1">{value}</p>
                         {trend && (
-                            <p className={`text-xs font-semibold ${theme.text} mt-2 flex items-center gap-1`}>
-                                <FaArrowUp className="text-green-600" />
+                            <p className={`text-xs font-semibold ${theme.text} mt-1.5 flex items-center gap-1`}>
+                                <FaArrowUp className="text-green-600 text-xs" />
                                 {trend}
                             </p>
                         )}
                     </div>
-                    <div className={`relative p-3 rounded-xl bg-gradient-to-br ${theme.bg} shadow-lg flex-shrink-0`}>
-                        <Icon className={`text-2xl text-white`} />
-                        <div className="absolute inset-0 rounded-xl border-2 border-white/20"></div>
+                    <div className={`relative p-2.5 rounded-lg bg-gradient-to-br ${theme.bg} shadow-md flex-shrink-0`}>
+                        <Icon className={`text-lg text-white`} />
+                        <div className="absolute inset-0 rounded-lg border-2 border-white/20"></div>
                     </div>
                 </div>
             </div>
@@ -260,10 +260,10 @@ const StatusGraph = ({ files, isCompact = false }) => {
     };
 
     return (
-        <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 h-full shadow-2xl">
-            <CardContent className="p-0 h-full flex flex-col">
+        <Card className="overflow-hidden border-0 bg-gradient-to-br from-slate-50 via-white to-slate-50 shadow-2xl rounded-none sm:rounded-2xl">
+            <CardContent className="p-0 flex flex-col h-full min-h-0">
                 {/* Premium Tab Navigation */}
-                <div className="bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 overflow-x-auto flex gap-3 px-6 py-5 flex-shrink-0 border-b border-blue-500/30 shadow-lg">
+                <div className="bg-gradient-to-r from-gray-900 via-slate-800 to-gray-900 overflow-x-hidden flex gap-1 px-3 py-2.5 flex-shrink-0 border-b border-blue-500/30 shadow-sm flex-wrap justify-center sm:justify-start">
                     {tabButtons.map((tab) => {
                         const tabColor = getTabColor(tab.color);
                         const isActive = activeTab === tab.id;
@@ -271,15 +271,15 @@ const StatusGraph = ({ files, isCompact = false }) => {
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveTab(tab.id)}
-                                className={`relative px-6 py-3.5 rounded-2xl font-bold transition-all duration-300 whitespace-nowrap flex items-center gap-2 group transform hover:scale-105 ${isActive
-                                    ? `bg-gradient-to-r ${tabColor.bg} ${tabColor.text} shadow-2xl scale-105 border-2 border-white/40 hover:scale-110 backdrop-blur-sm`
-                                    : "bg-white/8 text-white hover:bg-white/25 border-2 border-white/15 hover:border-white/30 backdrop-blur-sm"
+                                className={`relative px-3 py-1.5 rounded-lg font-semibold transition-all duration-300 whitespace-nowrap flex items-center gap-1 group transform hover:scale-102 text-xs sm:text-xs ${isActive
+                                    ? `bg-gradient-to-r ${tabColor.bg} ${tabColor.text} shadow-md scale-100 border border-white/40 hover:scale-105 backdrop-blur-sm`
+                                    : "bg-white/8 text-white hover:bg-white/20 border border-white/15 hover:border-white/30 backdrop-blur-sm"
                                     }`}
                             >
-                                <tab.icon className={`text-lg transition-all group-hover:scale-125 duration-200 ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}`} />
-                                <span className="text-sm sm:text-base">{tab.label}</span>
+                                <tab.icon className={`text-sm transition-all group-hover:scale-110 duration-200 ${isActive ? 'text-white' : 'text-gray-300 group-hover:text-white'}`} />
+                                <span className="hidden sm:inline">{tab.label}</span>
                                 {isActive && (
-                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-6 h-1 bg-white rounded-full shadow-lg animate-pulse"></div>
+                                    <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-5 h-0.5 bg-white rounded-full shadow-md animate-pulse"></div>
                                 )}
                             </button>
                         );
@@ -287,51 +287,38 @@ const StatusGraph = ({ files, isCompact = false }) => {
                 </div>
 
                 {/* Tab Content */}
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100">
+                <div className="flex-1 overflow-y-auto min-h-0 p-3 space-y-3 scrollbar-thin scrollbar-thumb-blue-400 scrollbar-track-gray-100">
                     {/* Status Tab */}
                     {activeTab === "status" && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <FaStar className="text-yellow-400 text-xl" />
-                                    <h3 className="text-3xl font-black text-gray-900">Status Distribution</h3>
+                        <div className="space-y-2.5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <FaStar className="text-yellow-400 text-lg" />
+                                    <h3 className="text-2xl font-black text-gray-900">Status Distribution</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 font-medium">Real-time overview of all submissions across different processing stages</p>
-                            </div>
-
-                            {/* Statistics Cards */}
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                                {statusData.map((item, index) => (
-                                    <StatCard
-                                        key={index}
-                                        icon={FaCheckCircle}
-                                        label={item.name}
-                                        value={item.value}
-                                        color={index === 0 ? 'amber' : index === 1 ? 'blue' : index === 2 ? 'green' : index === 3 ? 'red' : 'purple'}
-                                    />
-                                ))}
+                                <p className="text-xs text-gray-600 font-medium">Real-time overview of all submissions across different processing stages</p>
                             </div>
 
                             {/* Premium Chart Container */}
-                            <div className="relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
+                            <div className="relative overflow-visible rounded-2xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-500 group bg-white">
                                 <div className="absolute inset-0 bg-gradient-to-br from-blue-50/60 via-transparent to-blue-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="absolute -top-24 -right-24 w-48 h-48 bg-blue-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative z-10 p-4">
-                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-                                        <div className="w-1.5 h-6 bg-gradient-to-b from-blue-600 to-blue-400 rounded-full shadow-lg"></div>
+                                <div className="absolute -top-20 -right-20 w-40 h-40 bg-blue-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+                                <div className="relative z-10 p-3">
+                                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                        <div className="w-1 h-5 bg-gradient-to-b from-blue-600 to-blue-400 rounded-full shadow-md"></div>
                                         <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Submission Status Breakdown</p>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={60}>
+                                    <ResponsiveContainer width="100%" height={130}>
                                         <BarChart
                                             data={statusData}
-                                            margin={{ top: 5, right: 20, left: 5, bottom: 15 }}
+                                            margin={{ top: 6, right: 16, left: 88, bottom: 6 }}
                                             layout="vertical"
                                         >
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={true} vertical={false} />
-                                            <XAxis type="number" stroke="#374151" fontSize={11} fontWeight="600" />
-                                            <YAxis type="category" dataKey="name" stroke="#374151" fontSize={10} fontWeight="600" width={100} />
+                                            <XAxis type="number" stroke="#374151" fontSize={12} fontWeight="700" />
+                                            <YAxis type="category" dataKey="name" stroke="#374151" fontSize={11} fontWeight="700" width={85} />
                                             <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(59, 130, 246, 0.1)" }} />
-                                            <Bar dataKey="value" radius={[0, 16, 16, 0]} animationDuration={1000} isAnimationActive={true}>
+                                            <Bar dataKey="value" radius={[0, 12, 12, 0]} animationDuration={1000} isAnimationActive={true}>
                                                 {statusData.map((entry, index) => (
                                                     <Cell key={`cell-${index}`} fill={entry.fill} opacity={0.9} />
                                                 ))}
@@ -345,17 +332,17 @@ const StatusGraph = ({ files, isCompact = false }) => {
 
                     {/* Payment Tab */}
                     {activeTab === "payment" && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <FaStar className="text-yellow-400 text-xl" />
-                                    <h3 className="text-3xl font-black text-gray-900">Payment Collection Status</h3>
+                        <div className="space-y-2.5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <FaStar className="text-yellow-400 text-lg" />
+                                    <h3 className="text-2xl font-black text-gray-900">Payment Collection Status</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 font-medium">Track payment collection metrics across all submissions</p>
+                                <p className="text-xs text-gray-600 font-medium">Track payment collection metrics across all submissions</p>
                             </div>
 
                             {/* Payment Stats */}
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                 {paymentData.map((item, index) => (
                                     <StatCard
                                         key={index}
@@ -369,15 +356,15 @@ const StatusGraph = ({ files, isCompact = false }) => {
                             </div>
 
                             {/* Premium Chart Container */}
-                            <div className="relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
+                            <div className="relative overflow-visible rounded-2xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-500 group bg-white">
                                 <div className="absolute inset-0 bg-gradient-to-br from-green-50/60 via-transparent to-green-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="absolute -top-24 -right-24 w-48 h-48 bg-green-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative z-10 p-4">
-                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-                                        <div className="w-1.5 h-6 bg-gradient-to-b from-green-600 to-green-400 rounded-full shadow-lg"></div>
+                                <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+                                <div className="relative z-10 p-3">
+                                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                        <div className="w-1 h-5 bg-gradient-to-b from-green-600 to-green-400 rounded-full shadow-md"></div>
                                         <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Payment Collection Distribution</p>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={70}>
+                                    <ResponsiveContainer width="100%" height={145}>
                                         <PieChart>
                                             <Pie
                                                 data={paymentData}
@@ -387,8 +374,8 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                                 label={({ name, value, percent }) =>
                                                     `${name}: ${value} (${(percent * 100).toFixed(0)}%)`
                                                 }
-                                                outerRadius={30}
-                                                innerRadius={12}
+                                                outerRadius={36}
+                                                innerRadius={16}
                                                 dataKey="value"
                                                 animationDuration={1200}
                                                 isAnimationActive={true}
@@ -407,43 +394,43 @@ const StatusGraph = ({ files, isCompact = false }) => {
 
                     {/* Banks Tab */}
                     {activeTab === "banks" && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <FaStar className="text-yellow-400 text-xl" />
-                                    <h3 className="text-3xl font-black text-gray-900">Top Banks Distribution</h3>
+                        <div className="space-y-2.5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <FaStar className="text-yellow-400 text-lg" />
+                                    <h3 className="text-2xl font-black text-gray-900">Top Banks Distribution</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 font-medium">Market share and submissions across banking partners</p>
+                                <p className="text-xs text-gray-600 font-medium">Market share and submissions across banking partners</p>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 {/* Banks Summary Table */}
-                                <div className="lg:col-span-1 rounded-3xl border border-gray-300 shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 group bg-white">
-                                    <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-6 py-6 shadow-md group-hover:shadow-lg transition-shadow">
-                                        <p className="text-white font-bold uppercase tracking-widest text-sm flex items-center gap-3">
-                                            <FaBuilding className="text-lg" />
+                                <div className="lg:col-span-1 rounded-2xl border border-gray-300 shadow-md overflow-hidden hover:shadow-lg transition-all duration-500 group bg-white">
+                                    <div className="bg-gradient-to-r from-purple-600 via-purple-500 to-purple-600 px-5 py-4 shadow-sm group-hover:shadow-md transition-shadow">
+                                        <p className="text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                            <FaBuilding className="text-base" />
                                             Bank List
                                         </p>
                                     </div>
-                                    <div className="overflow-x-auto max-h-96 bg-white scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-gray-100">
+                                    <div className="overflow-x-auto max-h-80 bg-white scrollbar-thin scrollbar-thumb-purple-400 scrollbar-track-gray-100">
                                         <table className="w-full">
-                                            <thead>
+                                            <thead className="sticky top-0 bg-gradient-to-r from-purple-50 to-purple-100">
                                                 <tr className="bg-gradient-to-r from-purple-50 to-purple-100 border-b-2 border-purple-200">
-                                                    <th className="px-5 py-3 text-left text-xs font-bold text-purple-900 uppercase tracking-wider">Bank</th>
-                                                    <th className="px-5 py-3 text-right text-xs font-bold text-purple-900 uppercase tracking-wider">Count</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-bold text-purple-900 uppercase tracking-wider">Bank</th>
+                                                    <th className="px-4 py-2 text-right text-xs font-bold text-purple-900 uppercase tracking-wider">Count</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {bankData.map((item, index) => (
                                                     <tr key={index} className="border-b border-gray-100 hover:bg-purple-50/50 transition-colors group">
-                                                        <td className="px-5 py-4 text-sm font-semibold text-gray-900">
-                                                            <div className="flex items-center gap-3">
-                                                                <div className="w-4 h-4 rounded-lg shadow-md group-hover:scale-110 transition-transform" style={{ backgroundColor: item.fill }}></div>
+                                                        <td className="px-4 py-3 text-xs font-semibold text-gray-900">
+                                                            <div className="flex items-center gap-2">
+                                                                <div className="w-3 h-3 rounded-md shadow-sm group-hover:scale-110 transition-transform" style={{ backgroundColor: item.fill }}></div>
                                                                 <span>{item.name}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-5 py-4 text-right">
-                                                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-purple-200 to-purple-100 text-purple-700 font-bold text-sm shadow-md">{item.value}</span>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-purple-200 to-purple-100 text-purple-700 font-bold text-xs shadow-sm">{item.value}</span>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -453,15 +440,15 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                 </div>
 
                                 {/* Banks Pie Chart */}
-                                <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
+                                <div className="lg:col-span-2 relative overflow-visible rounded-2xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-500 group bg-white">
                                     <div className="absolute inset-0 bg-gradient-to-br from-purple-50/60 via-transparent to-purple-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-purple-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative z-10 p-4">
-                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-                                            <div className="w-1.5 h-6 bg-gradient-to-b from-purple-600 to-purple-400 rounded-full shadow-lg"></div>
+                                    <div className="absolute -top-20 -right-20 w-40 h-40 bg-purple-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+                                    <div className="relative z-10 p-3">
+                                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                            <div className="w-1 h-5 bg-gradient-to-b from-purple-600 to-purple-400 rounded-full shadow-md"></div>
                                             <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Market Share Distribution</p>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={70}>
+                                        <ResponsiveContainer width="100%" height={165}>
                                             <PieChart>
                                                 <Pie
                                                     data={bankData}
@@ -469,8 +456,8 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                                     cy="50%"
                                                     labelLine={true}
                                                     label={({ name, percent }) => `${(percent * 100).toFixed(0)}%`}
-                                                    outerRadius={30}
-                                                    innerRadius={13}
+                                                    outerRadius={40}
+                                                    innerRadius={20}
                                                     dataKey="value"
                                                     animationDuration={1200}
                                                     isAnimationActive={true}
@@ -490,43 +477,43 @@ const StatusGraph = ({ files, isCompact = false }) => {
 
                     {/* Cities Tab */}
                     {activeTab === "cities" && cityData.length > 0 && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <FaStar className="text-yellow-400 text-xl" />
-                                    <h3 className="text-3xl font-black text-gray-900">Top Cities Distribution</h3>
+                        <div className="space-y-2.5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <FaStar className="text-yellow-400 text-lg" />
+                                    <h3 className="text-2xl font-black text-gray-900">Top Cities Distribution</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 font-medium">Submission volume analysis across top cities</p>
+                                <p className="text-xs text-gray-600 font-medium">Submission volume analysis across top cities</p>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 {/* Cities Summary Table */}
-                                <div className="lg:col-span-1 rounded-3xl border border-gray-300 shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 group bg-white">
-                                    <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 px-6 py-6 shadow-md group-hover:shadow-lg transition-shadow">
-                                        <p className="text-white font-bold uppercase tracking-widest text-sm flex items-center gap-3">
-                                            <FaCity className="text-lg" />
+                                <div className="lg:col-span-1 rounded-2xl border border-gray-300 shadow-md overflow-hidden hover:shadow-lg transition-all duration-500 group bg-white">
+                                    <div className="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 px-5 py-4 shadow-sm group-hover:shadow-md transition-shadow">
+                                        <p className="text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                            <FaCity className="text-base" />
                                             City Rankings
                                         </p>
                                     </div>
-                                    <div className="overflow-x-auto max-h-96 bg-white scrollbar-thin scrollbar-thumb-amber-400 scrollbar-track-gray-100">
+                                    <div className="overflow-x-auto max-h-80 bg-white scrollbar-thin scrollbar-thumb-amber-400 scrollbar-track-gray-100">
                                         <table className="w-full">
-                                            <thead>
+                                            <thead className="sticky top-0 bg-gradient-to-r from-amber-50 to-amber-100">
                                                 <tr className="bg-gradient-to-r from-amber-50 to-amber-100 border-b-2 border-amber-200">
-                                                    <th className="px-5 py-3 text-left text-xs font-bold text-amber-900 uppercase tracking-wider">City</th>
-                                                    <th className="px-5 py-3 text-right text-xs font-bold text-amber-900 uppercase tracking-wider">Count</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-bold text-amber-900 uppercase tracking-wider">City</th>
+                                                    <th className="px-4 py-2 text-right text-xs font-bold text-amber-900 uppercase tracking-wider">Count</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {cityData.map((item, index) => (
                                                     <tr key={index} className="border-b border-gray-100 hover:bg-amber-50/50 transition-colors">
-                                                        <td className="px-5 py-4 text-sm font-semibold text-gray-900">
-                                                            <div className="flex items-center gap-3">
-                                                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-amber-200 to-amber-100 text-amber-700 font-bold text-xs">{index + 1}</span>
+                                                        <td className="px-4 py-3 text-xs font-semibold text-gray-900">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className="inline-flex items-center justify-center w-5 h-5 rounded-full bg-gradient-to-br from-amber-200 to-amber-100 text-amber-700 font-bold text-xs">{index + 1}</span>
                                                                 {item.name}
                                                             </div>
                                                         </td>
-                                                        <td className="px-5 py-4 text-right">
-                                                            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-br from-amber-200 to-amber-100 text-amber-700 font-bold text-sm shadow-md">{item.count}</span>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-amber-200 to-amber-100 text-amber-700 font-bold text-xs shadow-sm">{item.count}</span>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -536,29 +523,29 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                 </div>
 
                                 {/* Cities Bar Chart */}
-                                <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
+                                <div className="lg:col-span-2 relative overflow-visible rounded-2xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-500 group bg-white">
                                     <div className="absolute inset-0 bg-gradient-to-br from-amber-50/60 via-transparent to-amber-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-amber-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative z-10 p-4">
-                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-                                            <div className="w-1.5 h-6 bg-gradient-to-b from-amber-600 to-amber-400 rounded-full shadow-lg"></div>
+                                    <div className="absolute -top-20 -right-20 w-40 h-40 bg-amber-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+                                    <div className="relative z-10 p-3">
+                                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                            <div className="w-1 h-5 bg-gradient-to-b from-amber-600 to-amber-400 rounded-full shadow-md"></div>
                                             <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">City-wise Submission Volume</p>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={65}>
-                                            <BarChart data={cityData} margin={{ top: 5, right: 20, left: 10, bottom: 35 }}>
+                                        <ResponsiveContainer width="100%" height={205}>
+                                            <BarChart data={cityData} margin={{ top: 8, right: 16, left: 6, bottom: 46 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#fed7aa" horizontal={true} vertical={false} />
                                                 <XAxis
                                                     dataKey="name"
                                                     stroke="#b45309"
-                                                    fontSize={9}
-                                                    fontWeight="600"
+                                                    fontSize={10}
+                                                    fontWeight="700"
                                                     angle={-45}
                                                     textAnchor="end"
-                                                    height={35}
+                                                    height={46}
                                                 />
-                                                <YAxis stroke="#b45309" fontSize={11} fontWeight="600" />
+                                                <YAxis stroke="#b45309" fontSize={11} fontWeight="700" width={28} />
                                                 <Tooltip content={<CustomTooltip />} cursor={{ fill: "rgba(251, 146, 60, 0.15)" }} />
-                                                <Bar dataKey="count" fill="#f59e0b" radius={[12, 12, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
+                                                <Bar dataKey="count" fill="#f59e0b" radius={[10, 10, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>
@@ -569,17 +556,17 @@ const StatusGraph = ({ files, isCompact = false }) => {
 
                     {/* Timeline Tab */}
                     {activeTab === "timeline" && analyticsData.monthlyData.length > 0 && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <FaStar className="text-yellow-400 text-xl" />
-                                    <h3 className="text-3xl font-black text-gray-900">Submission Timeline & Trends</h3>
+                        <div className="space-y-2.5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <FaStar className="text-yellow-400 text-lg" />
+                                    <h3 className="text-2xl font-black text-gray-900">Submission Timeline & Trends</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 font-medium">Monthly submission volume and approval patterns</p>
+                                <p className="text-xs text-gray-600 font-medium">Monthly submission volume and approval patterns</p>
                             </div>
 
                             {/* KPI Cards */}
-                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-2.5">
                                 <StatCard
                                     icon={FaBolt}
                                     label="Total"
@@ -611,24 +598,24 @@ const StatusGraph = ({ files, isCompact = false }) => {
                             </div>
 
                             {/* Premium Chart Container */}
-                            <div className="relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
+                            <div className="relative overflow-visible rounded-2xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-500 group bg-white">
                                 <div className="absolute inset-0 bg-gradient-to-br from-indigo-50/60 via-transparent to-indigo-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                <div className="absolute -top-24 -right-24 w-48 h-48 bg-indigo-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                <div className="relative z-10 p-4">
-                                    <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-                                        <div className="w-1.5 h-6 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full shadow-lg"></div>
+                                <div className="absolute -top-20 -right-20 w-40 h-40 bg-indigo-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+                                <div className="relative z-10 p-3">
+                                    <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                        <div className="w-1 h-5 bg-gradient-to-b from-indigo-600 to-indigo-400 rounded-full shadow-md"></div>
                                         <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Monthly Submission Trends</p>
                                     </div>
-                                    <ResponsiveContainer width="100%" height={70}>
-                                        <ComposedChart data={analyticsData.monthlyData} margin={{ top: 5, right: 20, left: 10, bottom: 20 }}>
+                                    <ResponsiveContainer width="100%" height={225}>
+                                        <ComposedChart data={analyticsData.monthlyData} margin={{ top: 8, right: 16, left: 6, bottom: 18 }}>
                                             <CartesianGrid strokeDasharray="3 3" stroke="#e0e7ff" horizontal={true} vertical={false} />
-                                            <XAxis dataKey="name" stroke="#312e81" fontSize={9} fontWeight="600" />
-                                            <YAxis stroke="#312e81" fontSize={9} fontWeight="600" />
+                                            <XAxis dataKey="name" stroke="#312e81" fontSize={10} fontWeight="700" />
+                                            <YAxis stroke="#312e81" fontSize={11} fontWeight="700" width={32} />
                                             <Tooltip content={<CustomTooltip />} />
-                                            <Legend wrapperStyle={{ paddingTop: "8px", fontSize: "12px" }} />
-                                            <Area type="monotone" dataKey="submissions" fill="#4f46e5" stroke="#4f46e5" fillOpacity={0.2} strokeWidth={2} isAnimationActive={true} animationDuration={1000} />
-                                            <Bar dataKey="approved" fill="#10b981" radius={[8, 8, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
-                                            <Bar dataKey="rejected" fill="#ef4444" radius={[8, 8, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
+                                            <Legend wrapperStyle={{ paddingTop: "6px", fontSize: "12px", fontWeight: "600" }} />
+                                            <Area type="monotone" dataKey="submissions" fill="#4f46e5" stroke="#4f46e5" fillOpacity={0.2} strokeWidth={1.5} isAnimationActive={true} animationDuration={1000} />
+                                            <Bar dataKey="approved" fill="#10b981" radius={[6, 6, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
+                                            <Bar dataKey="rejected" fill="#ef4444" radius={[6, 6, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
                                         </ComposedChart>
                                     </ResponsiveContainer>
                                 </div>
@@ -638,46 +625,46 @@ const StatusGraph = ({ files, isCompact = false }) => {
 
                     {/* Engineers Tab */}
                     {activeTab === "engineers" && analyticsData.engineerStats.length > 0 && (
-                        <div className="space-y-6">
-                            <div className="space-y-3">
-                                <div className="flex items-center gap-3">
-                                    <FaStar className="text-yellow-400 text-xl" />
-                                    <h3 className="text-3xl font-black text-gray-900">Engineer Performance Analytics</h3>
+                        <div className="space-y-2.5">
+                            <div className="space-y-1">
+                                <div className="flex items-center gap-2">
+                                    <FaStar className="text-yellow-400 text-lg" />
+                                    <h3 className="text-2xl font-black text-gray-900">Engineer Performance Analytics</h3>
                                 </div>
-                                <p className="text-sm text-gray-600 font-medium">Individual engineer statistics and approval metrics</p>
+                                <p className="text-xs text-gray-600 font-medium">Individual engineer statistics and approval metrics</p>
                             </div>
 
-                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
                                 {/* Engineer Stats Table */}
-                                <div className="lg:col-span-2 rounded-3xl border border-gray-300 shadow-lg overflow-hidden hover:shadow-2xl transition-all duration-500 group bg-white">
-                                    <div className="bg-gradient-to-r from-pink-600 via-pink-500 to-pink-600 px-6 py-6 shadow-md group-hover:shadow-lg transition-shadow">
-                                        <p className="text-white font-bold uppercase tracking-widest text-sm flex items-center gap-3">
-                                            <FaUsers className="text-lg" />
+                                <div className="lg:col-span-2 rounded-2xl border border-gray-300 shadow-md overflow-hidden hover:shadow-lg transition-all duration-500 group bg-white">
+                                    <div className="bg-gradient-to-r from-pink-600 via-pink-500 to-pink-600 px-5 py-4 shadow-sm group-hover:shadow-md transition-shadow">
+                                        <p className="text-white font-bold uppercase tracking-widest text-xs flex items-center gap-2">
+                                            <FaUsers className="text-base" />
                                             Engineer Metrics
                                         </p>
                                     </div>
-                                    <div className="overflow-x-auto max-h-96 bg-white scrollbar-thin scrollbar-thumb-pink-400 scrollbar-track-gray-100">
+                                    <div className="overflow-x-auto max-h-80 bg-white scrollbar-thin scrollbar-thumb-pink-400 scrollbar-track-gray-100">
                                         <table className="w-full">
-                                            <thead>
+                                            <thead className="sticky top-0 bg-gradient-to-r from-pink-50 to-pink-100">
                                                 <tr className="bg-gradient-to-r from-pink-50 to-pink-100 border-b-2 border-pink-200">
-                                                    <th className="px-5 py-3 text-left text-xs font-bold text-pink-900 uppercase tracking-wider">Engineer</th>
-                                                    <th className="px-5 py-3 text-center text-xs font-bold text-pink-900 uppercase tracking-wider">Stats</th>
-                                                    <th className="px-5 py-3 text-right text-xs font-bold text-pink-900 uppercase tracking-wider">Rate</th>
+                                                    <th className="px-4 py-2 text-left text-xs font-bold text-pink-900 uppercase tracking-wider">Engineer</th>
+                                                    <th className="px-4 py-2 text-center text-xs font-bold text-pink-900 uppercase tracking-wider">Stats</th>
+                                                    <th className="px-4 py-2 text-right text-xs font-bold text-pink-900 uppercase tracking-wider">Rate</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {analyticsData.engineerStats.map((item, index) => (
                                                     <tr key={index} className="border-b border-gray-100 hover:bg-pink-50/50 transition-colors">
-                                                        <td className="px-5 py-4 text-sm font-semibold text-gray-900">{item.name}</td>
-                                                        <td className="px-5 py-4">
-                                                            <div className="flex items-center justify-center gap-2">
-                                                                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-green-200 to-green-100 text-green-700 font-bold text-xs" title="Approved">{item.approved}</span>
-                                                                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-red-200 to-red-100 text-red-700 font-bold text-xs" title="Rejected">{item.rejected}</span>
-                                                                <span className="inline-flex items-center justify-center w-7 h-7 rounded-full bg-gradient-to-br from-amber-200 to-amber-100 text-amber-700 font-bold text-xs" title="Pending">{item.pending}</span>
+                                                        <td className="px-4 py-3 text-xs font-semibold text-gray-900">{item.name}</td>
+                                                        <td className="px-4 py-3">
+                                                            <div className="flex items-center justify-center gap-1.5">
+                                                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-green-200 to-green-100 text-green-700 font-bold text-xs" title="Approved">{item.approved}</span>
+                                                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-red-200 to-red-100 text-red-700 font-bold text-xs" title="Rejected">{item.rejected}</span>
+                                                                <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-gradient-to-br from-amber-200 to-amber-100 text-amber-700 font-bold text-xs" title="Pending">{item.pending}</span>
                                                             </div>
                                                         </td>
-                                                        <td className="px-5 py-4 text-right">
-                                                            <span className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-full bg-gradient-to-r from-pink-200 to-pink-100 text-pink-700 font-bold text-xs shadow-md">{item.approvalRate}%</span>
+                                                        <td className="px-4 py-3 text-right">
+                                                            <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gradient-to-r from-pink-200 to-pink-100 text-pink-700 font-bold text-xs shadow-sm">{item.approvalRate}%</span>
                                                         </td>
                                                     </tr>
                                                 ))}
@@ -687,32 +674,32 @@ const StatusGraph = ({ files, isCompact = false }) => {
                                 </div>
 
                                 {/* Engineer Stats Bar Chart */}
-                                <div className="lg:col-span-2 relative overflow-hidden rounded-3xl border border-gray-300 shadow-lg hover:shadow-2xl transition-all duration-500 group bg-white">
+                                <div className="lg:col-span-2 relative overflow-visible rounded-2xl border border-gray-300 shadow-md hover:shadow-lg transition-all duration-500 group bg-white">
                                     <div className="absolute inset-0 bg-gradient-to-br from-pink-50/60 via-transparent to-pink-50/60 opacity-60 group-hover:opacity-100 transition-opacity duration-300"></div>
-                                    <div className="absolute -top-24 -right-24 w-48 h-48 bg-pink-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
-                                    <div className="relative z-10 p-4">
-                                        <div className="flex items-center gap-2 mb-4 pb-3 border-b border-gray-200">
-                                            <div className="w-1.5 h-6 bg-gradient-to-b from-pink-600 to-pink-400 rounded-full shadow-lg"></div>
+                                    <div className="absolute -top-20 -right-20 w-40 h-40 bg-pink-400/10 rounded-full blur-3xl group-hover:scale-110 transition-transform duration-500"></div>
+                                    <div className="relative z-10 p-3">
+                                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-gray-200">
+                                            <div className="w-1 h-5 bg-gradient-to-b from-pink-600 to-pink-400 rounded-full shadow-md"></div>
                                             <p className="text-xs font-bold text-gray-800 uppercase tracking-widest">Performance Distribution</p>
                                         </div>
-                                        <ResponsiveContainer width="100%" height={70}>
-                                            <BarChart data={analyticsData.engineerStats} margin={{ top: 5, right: 20, left: 10, bottom: 40 }}>
+                                        <ResponsiveContainer width="100%" height={225}>
+                                            <BarChart data={analyticsData.engineerStats} margin={{ top: 8, right: 16, left: 6, bottom: 46 }}>
                                                 <CartesianGrid strokeDasharray="3 3" stroke="#fbcfe8" horizontal={true} vertical={false} />
                                                 <XAxis
                                                     dataKey="name"
                                                     stroke="#be185d"
-                                                    fontSize={9}
-                                                    fontWeight="600"
+                                                    fontSize={10}
+                                                    fontWeight="700"
                                                     angle={-45}
                                                     textAnchor="end"
-                                                    height={50}
+                                                    height={46}
                                                 />
-                                                <YAxis stroke="#be185d" fontSize={9} fontWeight="600" />
+                                                <YAxis stroke="#be185d" fontSize={11} fontWeight="700" width={30} />
                                                 <Tooltip content={<CustomTooltip />} />
-                                                <Legend wrapperStyle={{ paddingTop: "10px", fontSize: "12px" }} />
-                                                <Bar dataKey="approved" fill="#10b981" radius={[8, 8, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
-                                                <Bar dataKey="rejected" fill="#ef4444" radius={[8, 8, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
-                                                <Bar dataKey="pending" fill="#f59e0b" radius={[8, 8, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
+                                                <Legend wrapperStyle={{ paddingTop: "6px", fontSize: "12px", fontWeight: "600" }} />
+                                                <Bar dataKey="approved" fill="#10b981" radius={[6, 6, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
+                                                <Bar dataKey="rejected" fill="#ef4444" radius={[6, 6, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
+                                                <Bar dataKey="pending" fill="#f59e0b" radius={[6, 6, 0, 0]} animationDuration={1000} isAnimationActive={true} opacity={0.9} />
                                             </BarChart>
                                         </ResponsiveContainer>
                                     </div>

@@ -845,493 +845,499 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
             </header>
 
             {/* Main Content */}
-            <main className="p-4 sm:p-6 md:p-8 space-y-5 sm:space-y-6 md:space-y-8 bg-gradient-to-b from-white to-neutral-50">
-                {/* Search Bar - Mobile Only */}
-                <div className="sm:hidden">
-                    <SearchBar data={files} />
-                </div>
-
-                {/* Analytics Graphs - Compact */}
-                {files.length > 0 && (
-                    <div className="mt-4 sm:mt-6 animate-fadeIn">
-                        <StatusGraph files={files} isCompact={true} />
-                    </div>
-                )}
-
-                {/* Data Table - Premium Card */}
-                <Card className="overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border-t-4 border-t-blue-600 bg-white rounded-3xl border border-blue-100/50">
-                    <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-5 bg-gradient-to-r from-blue-600 via-blue-500 to-slate-600 border-b-3 border-blue-700 py-6 sm:py-7 shadow-md">
-                        <div>
-                            <CardTitle className="text-lg sm:text-2xl font-black flex items-center gap-3 text-white tracking-tight">
-                                <div className="p-2.5 bg-white/20 rounded-xl shadow-md backdrop-blur-sm border border-white/30">
-                                    <FaEye className="text-white text-xl" />
-                                </div>
-                                Valuation Forms
-                            </CardTitle>
-                            <CardDescription className="text-xs sm:text-sm mt-3 text-blue-100 font-semibold">{sortedFiles.length} records {statusFilter && `— filtered`}</CardDescription>
+            <main className="bg-gradient-to-b from-white to-neutral-50">
+                {/* Unified Container - Status Graph & Table with consistent width & alignment */}
+                <div className="px-4 sm:px-6 md:px-8">
+                    {/* Analytics Graphs - Compact - with minimal top spacing */}
+                    {files.length > 0 && (
+                        <div className="pt-2 sm:pt-3 md:pt-4 pb-1 sm:pb-1.5 md:pb-1 animate-fadeIn">
+                            <StatusGraph files={files} isCompact={true} />
                         </div>
-                        <div className="flex gap-2 flex-wrap">
-                            {(statusFilter || cityFilter || bankFilter || engineerFilter) && (
-                                <Button
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => {
-                                        setStatusFilter(null);
-                                        setCityFilter(null);
-                                        setBankFilter(null);
-                                        setEngineerFilter(null);
-                                    }}
-                                    className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-blue-400 text-blue-600 bg-white hover:border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
-                                >
-                                    Clear Filters
-                                </Button>
-                            )}
-                            {selectedRows.size > 0 && (
-                                <>
-                                    <Button
-                                        variant="default"
-                                        size="sm"
-                                        onClick={() => {
-                                            const selectedRecords = files.filter(r => selectedRows.has(r._id));
-                                            if (selectedRecords.length > 0) {
-                                                handleCopyToClipboard(selectedRecords);
-                                            }
-                                        }}
-                                        className="text-xs sm:text-sm px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-blue-700 hover:scale-105"
-                                    >
-                                        Copy {selectedRows.size}
-                                    </Button>
-                                    <Button
-                                        variant="success"
-                                        size="sm"
-                                        onClick={() => {
-                                            const selectedRecords = files.filter(r => selectedRows.has(r._id));
-                                            if (selectedRecords.length > 0) {
-                                                navigateToBillForm(selectedRecords);
-                                            }
-                                        }}
-                                        className="text-xs sm:text-sm px-3 sm:px-4 bg-green-600 hover:bg-green-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-green-700 hover:scale-105"
-                                    >
-                                        <FaFileInvoice className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
-                                        Create Bill ({selectedRows.size})
-                                    </Button>
+                    )}
+
+                    {/* Search Bar & Table Container - Padded */}
+                    <div className="space-y-5 sm:space-y-6 md:space-y-8 pb-8 sm:pb-10 md:pb-12">
+                        {/* Search Bar - Mobile Only */}
+                        <div className="sm:hidden">
+                            <SearchBar data={files} />
+                        </div>
+
+                        {/* Data Table - Premium Card */}
+                        <Card className="overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border-t-4 border-t-slate-700 bg-white rounded-3xl border border-gray-200/50">
+                            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 border-b border-slate-600 py-3 sm:py-4 shadow-sm">
+                                <div>
+                                    <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2 text-white tracking-tight">
+                                        <div className="p-1.5 bg-white/15 rounded-lg shadow-sm backdrop-blur-sm border border-white/20">
+                                            <FaEye className="text-white text-base" />
+                                        </div>
+                                        Valuation Forms
+                                    </CardTitle>
+                                    <CardDescription className="text-xs mt-1.5 text-slate-300 font-medium">{sortedFiles.length} records {statusFilter && `— filtered`}</CardDescription>
+                                </div>
+                                <div className="flex gap-2 flex-wrap">
+                                    {(statusFilter || cityFilter || bankFilter || engineerFilter) && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={() => {
+                                                setStatusFilter(null);
+                                                setCityFilter(null);
+                                                setBankFilter(null);
+                                                setEngineerFilter(null);
+                                            }}
+                                            className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-blue-400 text-blue-600 bg-white hover:border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                                        >
+                                            Clear Filters
+                                        </Button>
+                                    )}
+                                    {selectedRows.size > 0 && (
+                                        <>
+                                            <Button
+                                                variant="default"
+                                                size="sm"
+                                                onClick={() => {
+                                                    const selectedRecords = files.filter(r => selectedRows.has(r._id));
+                                                    if (selectedRecords.length > 0) {
+                                                        handleCopyToClipboard(selectedRecords);
+                                                    }
+                                                }}
+                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-blue-700 hover:scale-105"
+                                            >
+                                                Copy {selectedRows.size}
+                                            </Button>
+                                            <Button
+                                                variant="success"
+                                                size="sm"
+                                                onClick={() => {
+                                                    const selectedRecords = files.filter(r => selectedRows.has(r._id));
+                                                    if (selectedRecords.length > 0) {
+                                                        navigateToBillForm(selectedRecords);
+                                                    }
+                                                }}
+                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-green-600 hover:bg-green-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-green-700 hover:scale-105"
+                                            >
+                                                <FaFileInvoice className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                                                Create Bill ({selectedRows.size})
+                                            </Button>
+                                            <Button
+                                                variant="outline"
+                                                size="sm"
+                                                onClick={() => setSelectedRows(new Set())}
+                                                className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-neutral-400 text-neutral-600 bg-white hover:border-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 shadow-md hover:shadow-lg"
+                                            >
+                                                Clear Selection
+                                            </Button>
+                                        </>
+                                    )}
                                     <Button
                                         variant="outline"
                                         size="sm"
-                                        onClick={() => setSelectedRows(new Set())}
-                                        className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-neutral-400 text-neutral-600 bg-white hover:border-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 shadow-md hover:shadow-lg"
+                                        onClick={() => fetchFiles(false, true)}
+                                        disabled={loading}
+                                        className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-blue-400 text-blue-600 bg-white hover:border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:border-neutral-300 disabled:text-neutral-400"
                                     >
-                                        Clear Selection
+                                        <FaSyncAlt className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
+                                        <span className="hidden sm:inline">Refresh</span>
                                     </Button>
-                                </>
-                            )}
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => fetchFiles(false, true)}
-                                disabled={loading}
-                                className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-blue-400 text-blue-600 bg-white hover:border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:border-neutral-300 disabled:text-neutral-400"
-                            >
-                                <FaSyncAlt className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
-                                <span className="hidden sm:inline">Refresh</span>
-                            </Button>
-                        </div>
-                    </CardHeader>
+                                </div>
+                            </CardHeader>
 
-                    <CardContent>
-                        {paginatedFiles.length > 0 ? (
-                            <>
-                                <div className="overflow-x-auto">
-                                    <Table>
-                                        <TableHeader>
-                                            <TableRow className="hover:bg-transparent bg-gradient-to-r from-blue-600 via-blue-500 to-slate-600 border-b-2 border-blue-700 transition-colors duration-200">
-                                                <TableHead className="min-w-[40px] text-xs sm:text-sm px-2 py-3 font-black text-white">
-                                                    <div className="flex items-center gap-1 justify-center">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={paginatedFiles.length > 0 && selectedRows.size === paginatedFiles.length}
-                                                            onChange={handleSelectAll}
-                                                            className="w-4 h-4 cursor-pointer accent-blue-400 rounded"
-                                                            title="Select all rows on this page"
-                                                        />
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300 rounded-t-lg" onClick={() => handleSort("clientName")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">CLNT</span>
-                                                        {sortField === "clientName" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[85px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("address")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">ADDR</span>
-                                                        {sortField === "address" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[85px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("mobileNumber")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">MOBILE</span>
-                                                        {sortField === "mobileNumber" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
-                                                    <select
-                                                        value={bankFilter || ""}
-                                                        onChange={(e) => setBankFilter(e.target.value || null)}
-                                                        className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
-                                                        title="Filter by Bank"
-                                                    >
-                                                        <option value="" className="font-semibold">BANK</option>
-                                                        {uniqueBanks.map(bank => (
-                                                            <option key={bank} value={bank}>{bank}</option>
-                                                        ))}
-                                                    </select>
-                                                </TableHead>
-                                                <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
-                                                    <select
-                                                        value={engineerFilter || ""}
-                                                        onChange={(e) => setEngineerFilter(e.target.value || null)}
-                                                        className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
-                                                        title="Filter by Engineer"
-                                                    >
-                                                        <option value="" className="font-semibold">ENG</option>
-                                                        {uniqueEngineers.map(engineer => (
-                                                            <option key={engineer} value={engineer}>{engineer}</option>
-                                                        ))}
-                                                    </select>
-                                                </TableHead>
-                                                <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
-                                                    <select
-                                                        value={cityFilter || ""}
-                                                        onChange={(e) => setCityFilter(e.target.value || null)}
-                                                        className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
-                                                        title="Filter by City"
-                                                    >
-                                                        <option value="" className="font-semibold">CITY</option>
-                                                        {uniqueCities.map(city => (
-                                                            <option key={city} value={city}>{city}</option>
-                                                        ))}
-                                                    </select>
-                                                </TableHead>
-                                                <TableHead className="min-w-[60px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("payment")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">PAY</span>
-                                                        {sortField === "payment" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[60px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("status")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">STS</span>
-                                                        {sortField === "status" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[70px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("duration")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">DUR</span>
-                                                        {sortField === "duration" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[95px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("createdAt")}>
-                                                    <div className="flex items-center gap-2 whitespace-nowrap">
-                                                        <span className="font-bold tracking-wide text-blue-200">DATE</span>
-                                                        {sortField === "createdAt" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                    </div>
-                                                </TableHead>
-                                                <TableHead className="min-w-[110px] text-xs sm:text-sm px-2 py-3 font-black text-white">
-                                                    <span className="font-bold tracking-wide text-blue-200">NOTES</span>
-                                                </TableHead>
-                                                <TableHead className="min-w-[80px] text-xs sm:text-sm px-2 py-3 font-black text-white">
-                                                    <span className="font-bold tracking-wide text-blue-200">ACTS</span>
-                                                </TableHead>
-                                            </TableRow>
-                                        </TableHeader>
-                                        <TableBody>
-                                            {paginatedFiles.map((record) => (
-                                                <TableRow key={record._id} className="hover:bg-blue-50 border-b border-neutral-200 transition-all duration-300 hover:shadow-md hover:border-blue-400 group hover:scale-y-105">
-                                                    <TableCell className="text-sm text-center px-1 py-2">
-                                                        <input
-                                                            type="checkbox"
-                                                            checked={selectedRows.has(record._id)}
-                                                            onChange={() => handleCheckboxChange(record._id)}
-                                                            className="w-4 h-4 cursor-pointer accent-neutral-700 rounded"
-                                                        />
-
-
-
-                                                    </TableCell>
-                                                    <TableCell className={`text-sm font-black text-neutral-900 group-hover:text-blue-700 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'whitespace-normal' : ''}`}>{record.clientName}</TableCell>
-                                                    <TableCell className={`text-sm font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'max-w-[200px] whitespace-normal break-words' : 'max-w-[140px] truncate'}`}>{record.address}</TableCell>
-                                                    <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors duration-200">{record.mobileNumber}</TableCell>
-                                                    <TableCell className="text-xs px-1 py-2 font-semibold text-neutral-700">
-                                                        <div className="flex flex-col gap-1">
-                                                            <span className="truncate">{record.bankName}</span>
-                                                            {record.selectedForm && (
-                                                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold text-white w-fit ${record.selectedForm === 'ubiShop' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
-                                                                    record.selectedForm === 'bomFlat' ? 'bg-gradient-to-r from-purple-500 to-purple-600' :
-                                                                        record.selectedForm === 'ubiApf' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
-                                                                            'bg-gradient-to-r from-gray-500 to-gray-600'
-                                                                    }`}>
-                                                                    {record.selectedForm === 'ubiShop' ? 'UBI Shop' :
-                                                                        record.selectedForm === 'bomFlat' ? 'BOM Flat' :
-                                                                            record.selectedForm === 'ubiApf' ? 'UBI APF' :
-                                                                                record.selectedForm}
-                                                                </span>
-                                                            )}
-                                                        </div>
-                                                    </TableCell>
-                                                    <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700">{record.engineerName}</TableCell>
-                                                    <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700">{record.city}</TableCell>
-                                                    <TableCell className="px-1 py-2">
-                                                        <Badge variant={record.payment === "yes" ? "success" : "warning"} className="text-xs px-2 py-1 font-bold shadow-sm">
-                                                            {record.payment === "yes" ? "Y" : "N"}
-                                                        </Badge>
-                                                    </TableCell>
-                                                    <TableCell className="px-1 py-2 text-center">{getStatusBadge(record.status)}</TableCell>
-                                                    <TableCell className="px-1 py-2">
-                                                        {timeDurations[record._id] ? (
-                                                            <Badge variant="outline" className="text-xs bg-gradient-to-r from-blue-50 to-slate-100 px-2 py-1 font-bold border-blue-300 shadow-sm">{timeDurations[record._id].days}:{timeDurations[record._id].hours}:{timeDurations[record._id].minutes}:{timeDurations[record._id].seconds}</Badge>
-                                                        ) : "-"}
-                                                    </TableCell>
-                                                    <TableCell className="text-xs sm:text-sm px-1 py-2 font-semibold text-slate-700">
-                                                        {record.dateTime || record.createdAt ? (
-                                                            <>
-                                                                <div>{new Date(record.dateTime || record.createdAt).toLocaleDateString()}</div>
-                                                                <div className="text-slate-600 text-xs">{new Date(record.dateTime || record.createdAt).toLocaleTimeString()}</div>
-                                                            </>
-                                                        ) : "-"}
-                                                    </TableCell>
-                                                    <TableCell className="text-xs max-w-[100px] px-1 py-2">
-                                                        {record.notes ? (
-                                                            <div className="whitespace-normal break-words line-clamp-1 text-xs font-semibold text-slate-700" title={record.notes}>
-                                                                {record.notes}
+                            <CardContent>
+                                {paginatedFiles.length > 0 ? (
+                                    <>
+                                        <div className="overflow-x-auto">
+                                            <Table>
+                                                <TableHeader>
+                                                    <TableRow className="hover:bg-transparent bg-gradient-to-r from-blue-600 via-blue-500 to-slate-600 border-b-2 border-blue-700 transition-colors duration-200">
+                                                        <TableHead className="min-w-[40px] text-xs sm:text-sm px-2 py-3 font-black text-white">
+                                                            <div className="flex items-center gap-1 justify-center">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={paginatedFiles.length > 0 && selectedRows.size === paginatedFiles.length}
+                                                                    onChange={handleSelectAll}
+                                                                    className="w-4 h-4 cursor-pointer accent-blue-400 rounded"
+                                                                    title="Select all rows on this page"
+                                                                />
                                                             </div>
-                                                        ) : (
-                                                            <span className="text-slate-500 font-medium">-</span>
-                                                        )}
-                                                    </TableCell>
-                                                    <TableCell className="px-1 py-2">
-                                                        <div className="flex flex-wrap gap-1">
-                                                            {role === "user" && normalizeStatus(record.status) === "pending" && (
-                                                                <Badge
-                                                                    variant="warning"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5"
-                                                                    onClick={() => {
-                                                                        console.log("🟡 Pending Edit Badge clicked - record:", record);
-                                                                        navigateToEditForm(record);
-                                                                    }}
-                                                                    title="Edit Form"
-                                                                >
-                                                                    <FaEdit className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
-                                                            {role === "user" && normalizeStatus(record.status) === "on-progress" && (
-                                                                <Badge
-                                                                    variant="default"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-blue-600 flex items-center gap-1.5"
-                                                                    onClick={() => {
-                                                                        console.log("🔵 On-Progress Edit Badge clicked - record:", record);
-                                                                        navigateToEditForm(record);
-                                                                    }}
-                                                                    title="Edit Form"
-                                                                >
-                                                                    <FaEdit className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
-                                                            {role === "user" && normalizeStatus(record.status) === "rejected" && (
-                                                                <Badge
-                                                                    variant="destructive"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5"
-                                                                    onClick={() => {
-                                                                        console.log("🔴 Rejected Edit Badge clicked - record:", record);
-                                                                        navigateToEditForm(record);
-                                                                    }}
-                                                                    title="Edit Form"
-                                                                >
-                                                                    <FaEdit className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
-                                                            {normalizeStatus(record.status) === "approved" && (
-                                                                <>
-                                                                    <Badge
-                                                                        variant="success"
-                                                                        className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5 bg-green-600 hover:bg-green-700 border border-green-700"
-                                                                        onClick={() => handleDownloadPDF(record)}
-                                                                        title="Download PDF - Red Badge"
-                                                                    >
-                                                                        <FaDownload className="h-3 w-3" />
-                                                                        <span className="hidden sm:inline text-xs">PDF</span>
-                                                                    </Badge>
-                                                                    <Badge
-                                                                        variant="outline"
-                                                                        className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5 bg-blue-50 border-2 border-blue-600 text-blue-700 hover:bg-blue-100 hover:border-blue-700"
-                                                                        onClick={() => handleDownloadDOCX(record)}
-                                                                        title="Download Word Document (.docx)"
-                                                                    >
-                                                                        <FaFileAlt className="h-3 w-3" />
-                                                                        <span className="hidden sm:inline text-xs">DOCX</span>
-                                                                    </Badge>
-                                                                </>
-                                                            )}
-                                                            {(role === "manager" || role === "admin") && (normalizeStatus(record.status) === "pending" || normalizeStatus(record.status) === "on-progress") && (
-                                                                <Badge
-                                                                    variant="default"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-blue-600 flex items-center gap-1.5"
-                                                                    onClick={() => {
-                                                                        console.log("👁️ Manager Review Badge clicked - record:", record);
-                                                                        navigateToEditForm(record);
-                                                                    }}
-                                                                    title="Review Form"
-                                                                >
-                                                                    <FaEye className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
-                                                            {(role === "manager" || role === "admin") && (normalizeStatus(record.status) === "rejected" || normalizeStatus(record.status) === "rework") && (
-                                                                <Badge
-                                                                    variant="destructive"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5"
-                                                                    onClick={() => {
-                                                                        console.log("🟠 Manager Rework/Rejected Badge clicked - record:", record);
-                                                                        navigateToEditForm(record);
-                                                                    }}
-                                                                    title="Edit Form"
-                                                                >
-                                                                    <FaEdit className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
-                                                            {(role === "manager" || role === "admin") && normalizeStatus(record.status) === "approved" && (
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-purple-50 border-purple-400 text-purple-700 flex items-center gap-1.5"
-                                                                    onClick={() => handleReworkRequest(record)}
-                                                                    title="Request Rework"
-                                                                >
-                                                                    <FaRedo className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
-                                                            {role === "user" && normalizeStatus(record.status) === "rework" && (
-                                                                <Badge
-                                                                    variant="outline"
-                                                                    className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-orange-50 border-orange-400 text-orange-700 flex items-center gap-1.5"
-                                                                    onClick={() => {
-                                                                        console.log("🟠 Rework Badge clicked - record:", record);
-                                                                        navigateToEditForm(record);
-                                                                    }}
-                                                                    title="Rework Form"
-                                                                >
-                                                                    <FaRedo className="h-3 w-3" />
-                                                                </Badge>
-                                                            )}
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300 rounded-t-lg" onClick={() => handleSort("clientName")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">CLNT</span>
+                                                                {sortField === "clientName" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[85px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("address")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">ADDR</span>
+                                                                {sortField === "address" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[85px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("mobileNumber")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">MOBILE</span>
+                                                                {sortField === "mobileNumber" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
+                                                            <select
+                                                                value={bankFilter || ""}
+                                                                onChange={(e) => setBankFilter(e.target.value || null)}
+                                                                className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
+                                                                title="Filter by Bank"
+                                                            >
+                                                                <option value="" className="font-semibold">BANK</option>
+                                                                {uniqueBanks.map(bank => (
+                                                                    <option key={bank} value={bank}>{bank}</option>
+                                                                ))}
+                                                            </select>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
+                                                            <select
+                                                                value={engineerFilter || ""}
+                                                                onChange={(e) => setEngineerFilter(e.target.value || null)}
+                                                                className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
+                                                                title="Filter by Engineer"
+                                                            >
+                                                                <option value="" className="font-semibold">ENG</option>
+                                                                {uniqueEngineers.map(engineer => (
+                                                                    <option key={engineer} value={engineer}>{engineer}</option>
+                                                                ))}
+                                                            </select>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
+                                                            <select
+                                                                value={cityFilter || ""}
+                                                                onChange={(e) => setCityFilter(e.target.value || null)}
+                                                                className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
+                                                                title="Filter by City"
+                                                            >
+                                                                <option value="" className="font-semibold">CITY</option>
+                                                                {uniqueCities.map(city => (
+                                                                    <option key={city} value={city}>{city}</option>
+                                                                ))}
+                                                            </select>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[60px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("payment")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">PAY</span>
+                                                                {sortField === "payment" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[60px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("status")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">STS</span>
+                                                                {sortField === "status" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[70px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("duration")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">DUR</span>
+                                                                {sortField === "duration" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[95px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("createdAt")}>
+                                                            <div className="flex items-center gap-2 whitespace-nowrap">
+                                                                <span className="font-bold tracking-wide text-blue-200">DATE</span>
+                                                                {sortField === "createdAt" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                            </div>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[110px] text-xs sm:text-sm px-2 py-3 font-black text-white">
+                                                            <span className="font-bold tracking-wide text-blue-200">NOTES</span>
+                                                        </TableHead>
+                                                        <TableHead className="min-w-[80px] text-xs sm:text-sm px-2 py-3 font-black text-white">
+                                                            <span className="font-bold tracking-wide text-blue-200">ACTS</span>
+                                                        </TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {paginatedFiles.map((record) => (
+                                                        <TableRow key={record._id} className="hover:bg-blue-50 border-b border-neutral-200 transition-all duration-300 hover:shadow-md hover:border-blue-400 group hover:scale-y-105">
+                                                            <TableCell className="text-sm text-center px-1 py-2">
+                                                                <input
+                                                                    type="checkbox"
+                                                                    checked={selectedRows.has(record._id)}
+                                                                    onChange={() => handleCheckboxChange(record._id)}
+                                                                    className="w-4 h-4 cursor-pointer accent-neutral-700 rounded"
+                                                                />
 
-                                                        </div>
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))}
-                                        </TableBody>
-                                    </Table>
-                                    {showChat && (
-                                        <div className="fixed bottom-6 right-6 w-[600px] h-[700px] bg-white shadow-2xl border border-neutral-300 rounded-2xl z-50 flex flex-col">
-                                            {/* Chat Header */}
-                                            <div className="p-4 bg-blue-600 text-white rounded-t-2xl flex justify-between items-center">
-                                                <span className="font-bold text-lg">AI Assistant</span>
-                                                <button onClick={() => setShowChat(false)}>
-                                                    <FaTimes className="h-5 w-5" />
-                                                </button>
-                                            </div>
 
-                                            {/* Messages Box */}
-                                            <div
-                                                id="aiChatBox"
-                                                className="flex-1 p-4 overflow-y-auto text-sm text-neutral-800 space-y-3"
-                                            >
-                                                {messages.map((msg, idx) => (
-                                                    <div
-                                                        key={idx}
-                                                        className={`p-2 rounded-lg max-w-[90%] ${msg.sender === "user"
-                                                            ? "ml-auto bg-blue-100 text-blue-900"
-                                                            : "mr-auto bg-neutral-200"
-                                                            }`}
-                                                    >
-                                                        {msg.text}
-                                                    </div>
-                                                ))}
-                                            </div>
 
-                                            {/* Input */}
-                                            <div className="p-4 border-t border-neutral-300">
-                                                <form onSubmit={handleSendMessage} className="space-y-3">
-                                                    {/* Uploaded Files Display - Compact */}
-                                                    {uploadedFiles.length > 0 && (
-                                                        <div className="flex flex-wrap gap-2">
-                                                            {uploadedFiles.map((file, idx) => (
-                                                                <div key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
-                                                                    <span className="truncate max-w-[150px]">{file.name}</span>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => removeFile(idx)}
-                                                                        className="text-blue-600 hover:text-blue-800 font-bold"
-                                                                    >
-                                                                        ✕
-                                                                    </button>
+                                                            </TableCell>
+                                                            <TableCell className={`text-sm font-black text-neutral-900 group-hover:text-blue-700 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'whitespace-normal' : ''}`}>{record.clientName}</TableCell>
+                                                            <TableCell className={`text-sm font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'max-w-[200px] whitespace-normal break-words' : 'max-w-[140px] truncate'}`}>{record.address}</TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors duration-200">{record.mobileNumber}</TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 font-semibold text-neutral-700">
+                                                                <div className="flex flex-col gap-1">
+                                                                    <span className="truncate">{record.bankName}</span>
+                                                                    {record.selectedForm && (
+                                                                        <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold text-white w-fit ${record.selectedForm === 'ubiShop' ? 'bg-gradient-to-r from-blue-500 to-blue-600' :
+                                                                            record.selectedForm === 'bomFlat' ? 'bg-gradient-to-r from-purple-500 to-purple-600' :
+                                                                                record.selectedForm === 'ubiApf' ? 'bg-gradient-to-r from-amber-500 to-amber-600' :
+                                                                                    'bg-gradient-to-r from-gray-500 to-gray-600'
+                                                                            }`}>
+                                                                            {record.selectedForm === 'ubiShop' ? 'UBI Shop' :
+                                                                                record.selectedForm === 'bomFlat' ? 'BOM Flat' :
+                                                                                    record.selectedForm === 'ubiApf' ? 'UBI APF' :
+                                                                                        record.selectedForm}
+                                                                        </span>
+                                                                    )}
                                                                 </div>
-                                                            ))}
-                                                        </div>
-                                                    )}
+                                                            </TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700">{record.engineerName}</TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700">{record.city}</TableCell>
+                                                            <TableCell className="px-1 py-2">
+                                                                <Badge variant={record.payment === "yes" ? "success" : "warning"} className="text-xs px-2 py-1 font-bold shadow-sm">
+                                                                    {record.payment === "yes" ? "Y" : "N"}
+                                                                </Badge>
+                                                            </TableCell>
+                                                            <TableCell className="px-1 py-2 text-center">{getStatusBadge(record.status)}</TableCell>
+                                                            <TableCell className="px-1 py-2">
+                                                                {timeDurations[record._id] ? (
+                                                                    <Badge variant="outline" className="text-xs bg-gradient-to-r from-blue-50 to-slate-100 px-2 py-1 font-bold border-blue-300 shadow-sm">{timeDurations[record._id].days}:{timeDurations[record._id].hours}:{timeDurations[record._id].minutes}:{timeDurations[record._id].seconds}</Badge>
+                                                                ) : "-"}
+                                                            </TableCell>
+                                                            <TableCell className="text-xs sm:text-sm px-1 py-2 font-semibold text-slate-700">
+                                                                {record.dateTime || record.createdAt ? (
+                                                                    <>
+                                                                        <div>{new Date(record.dateTime || record.createdAt).toLocaleDateString()}</div>
+                                                                        <div className="text-slate-600 text-xs">{new Date(record.dateTime || record.createdAt).toLocaleTimeString()}</div>
+                                                                    </>
+                                                                ) : "-"}
+                                                            </TableCell>
+                                                            <TableCell className="text-xs max-w-[100px] px-1 py-2">
+                                                                {record.notes ? (
+                                                                    <div className="whitespace-normal break-words line-clamp-1 text-xs font-semibold text-slate-700" title={record.notes}>
+                                                                        {record.notes}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-slate-500 font-medium">-</span>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell className="px-1 py-2">
+                                                                <div className="flex flex-wrap gap-1">
+                                                                    {role === "user" && normalizeStatus(record.status) === "pending" && (
+                                                                        <Badge
+                                                                            variant="warning"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5"
+                                                                            onClick={() => {
+                                                                                console.log("🟡 Pending Edit Badge clicked - record:", record);
+                                                                                navigateToEditForm(record);
+                                                                            }}
+                                                                            title="Edit Form"
+                                                                        >
+                                                                            <FaEdit className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
+                                                                    {role === "user" && normalizeStatus(record.status) === "on-progress" && (
+                                                                        <Badge
+                                                                            variant="default"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-blue-600 flex items-center gap-1.5"
+                                                                            onClick={() => {
+                                                                                console.log("🔵 On-Progress Edit Badge clicked - record:", record);
+                                                                                navigateToEditForm(record);
+                                                                            }}
+                                                                            title="Edit Form"
+                                                                        >
+                                                                            <FaEdit className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
+                                                                    {role === "user" && normalizeStatus(record.status) === "rejected" && (
+                                                                        <Badge
+                                                                            variant="destructive"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5"
+                                                                            onClick={() => {
+                                                                                console.log("🔴 Rejected Edit Badge clicked - record:", record);
+                                                                                navigateToEditForm(record);
+                                                                            }}
+                                                                            title="Edit Form"
+                                                                        >
+                                                                            <FaEdit className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
+                                                                    {normalizeStatus(record.status) === "approved" && (
+                                                                        <>
+                                                                            <Badge
+                                                                                variant="success"
+                                                                                className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5 bg-green-600 hover:bg-green-700 border border-green-700"
+                                                                                onClick={() => handleDownloadPDF(record)}
+                                                                                title="Download PDF - Red Badge"
+                                                                            >
+                                                                                <FaDownload className="h-3 w-3" />
+                                                                                <span className="hidden sm:inline text-xs">PDF</span>
+                                                                            </Badge>
+                                                                            <Badge
+                                                                                variant="outline"
+                                                                                className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5 bg-blue-50 border-2 border-blue-600 text-blue-700 hover:bg-blue-100 hover:border-blue-700"
+                                                                                onClick={() => handleDownloadDOCX(record)}
+                                                                                title="Download Word Document (.docx)"
+                                                                            >
+                                                                                <FaFileAlt className="h-3 w-3" />
+                                                                                <span className="hidden sm:inline text-xs">DOCX</span>
+                                                                            </Badge>
+                                                                        </>
+                                                                    )}
+                                                                    {(role === "manager" || role === "admin") && (normalizeStatus(record.status) === "pending" || normalizeStatus(record.status) === "on-progress") && (
+                                                                        <Badge
+                                                                            variant="default"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-blue-600 flex items-center gap-1.5"
+                                                                            onClick={() => {
+                                                                                console.log("👁️ Manager Review Badge clicked - record:", record);
+                                                                                navigateToEditForm(record);
+                                                                            }}
+                                                                            title="Review Form"
+                                                                        >
+                                                                            <FaEye className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
+                                                                    {(role === "manager" || role === "admin") && (normalizeStatus(record.status) === "rejected" || normalizeStatus(record.status) === "rework") && (
+                                                                        <Badge
+                                                                            variant="destructive"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 flex items-center gap-1.5"
+                                                                            onClick={() => {
+                                                                                console.log("🟠 Manager Rework/Rejected Badge clicked - record:", record);
+                                                                                navigateToEditForm(record);
+                                                                            }}
+                                                                            title="Edit Form"
+                                                                        >
+                                                                            <FaEdit className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
+                                                                    {(role === "manager" || role === "admin") && normalizeStatus(record.status) === "approved" && (
+                                                                        <Badge
+                                                                            variant="outline"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-purple-50 border-purple-400 text-purple-700 flex items-center gap-1.5"
+                                                                            onClick={() => handleReworkRequest(record)}
+                                                                            title="Request Rework"
+                                                                        >
+                                                                            <FaRedo className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
+                                                                    {role === "user" && normalizeStatus(record.status) === "rework" && (
+                                                                        <Badge
+                                                                            variant="outline"
+                                                                            className="text-xs px-2.5 py-1.5 cursor-pointer hover:shadow-lg hover:scale-110 font-bold transition-all duration-200 bg-orange-50 border-orange-400 text-orange-700 flex items-center gap-1.5"
+                                                                            onClick={() => {
+                                                                                console.log("🟠 Rework Badge clicked - record:", record);
+                                                                                navigateToEditForm(record);
+                                                                            }}
+                                                                            title="Rework Form"
+                                                                        >
+                                                                            <FaRedo className="h-3 w-3" />
+                                                                        </Badge>
+                                                                    )}
 
-                                                    <div className="flex gap-2">
-                                                        <textarea
-                                                            value={input}
-                                                            onChange={(e) => setInput(e.target.value)}
-                                                            className="flex-1 border border-neutral-300 rounded-lg px-3 py-2 text-sm resize-none"
-                                                            placeholder="Ask me anything..."
-                                                            rows="2"
-                                                        />
-                                                        <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold self-end">
-                                                            Send
+                                                                </div>
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+                                            {showChat && (
+                                                <div className="fixed bottom-6 right-6 w-[600px] h-[700px] bg-white shadow-2xl border border-neutral-300 rounded-2xl z-50 flex flex-col">
+                                                    {/* Chat Header */}
+                                                    <div className="p-4 bg-blue-600 text-white rounded-t-2xl flex justify-between items-center">
+                                                        <span className="font-bold text-lg">AI Assistant</span>
+                                                        <button onClick={() => setShowChat(false)}>
+                                                            <FaTimes className="h-5 w-5" />
                                                         </button>
                                                     </div>
-                                                    <button
-                                                        type="button"
-                                                        onClick={() => fileInputRef.current?.click()}
-                                                        className="w-full bg-neutral-200 text-neutral-700 px-3 py-2 rounded-lg hover:bg-neutral-300 text-sm font-bold transition-colors"
+
+                                                    {/* Messages Box */}
+                                                    <div
+                                                        id="aiChatBox"
+                                                        className="flex-1 p-4 overflow-y-auto text-sm text-neutral-800 space-y-3"
                                                     >
-                                                        📎 Attach Files
-                                                    </button>
-                                                    <input
-                                                        ref={fileInputRef}
-                                                        type="file"
-                                                        onChange={handleFileUpload}
-                                                        multiple
-                                                        accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                                                        className="hidden"
-                                                    />
-                                                </form>
+                                                        {messages.map((msg, idx) => (
+                                                            <div
+                                                                key={idx}
+                                                                className={`p-2 rounded-lg max-w-[90%] ${msg.sender === "user"
+                                                                    ? "ml-auto bg-blue-100 text-blue-900"
+                                                                    : "mr-auto bg-neutral-200"
+                                                                    }`}
+                                                            >
+                                                                {msg.text}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+
+                                                    {/* Input */}
+                                                    <div className="p-4 border-t border-neutral-300">
+                                                        <form onSubmit={handleSendMessage} className="space-y-3">
+                                                            {/* Uploaded Files Display - Compact */}
+                                                            {uploadedFiles.length > 0 && (
+                                                                <div className="flex flex-wrap gap-2">
+                                                                    {uploadedFiles.map((file, idx) => (
+                                                                        <div key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
+                                                                            <span className="truncate max-w-[150px]">{file.name}</span>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => removeFile(idx)}
+                                                                                className="text-blue-600 hover:text-blue-800 font-bold"
+                                                                            >
+                                                                                ✕
+                                                                            </button>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+
+                                                            <div className="flex gap-2">
+                                                                <textarea
+                                                                    value={input}
+                                                                    onChange={(e) => setInput(e.target.value)}
+                                                                    className="flex-1 border border-neutral-300 rounded-lg px-3 py-2 text-sm resize-none"
+                                                                    placeholder="Ask me anything..."
+                                                                    rows="2"
+                                                                />
+                                                                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold self-end">
+                                                                    Send
+                                                                </button>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => fileInputRef.current?.click()}
+                                                                className="w-full bg-neutral-200 text-neutral-700 px-3 py-2 rounded-lg hover:bg-neutral-300 text-sm font-bold transition-colors"
+                                                            >
+                                                                📎 Attach Files
+                                                            </button>
+                                                            <input
+                                                                ref={fileInputRef}
+                                                                type="file"
+                                                                onChange={handleFileUpload}
+                                                                multiple
+                                                                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
+                                                                className="hidden"
+                                                            />
+                                                        </form>
+                                                    </div>
+                                                </div>
+                                            )}
+
+
+                                        </div>
+                                        <div className="flex-shrink-0 border-t-2 border-blue-300 bg-gradient-to-r from-blue-50 via-white to-blue-50 shadow-sm border border-blue-100/50">
+                                            <Pagination
+                                                currentPage={currentPage}
+                                                totalPages={totalPages}
+                                                onPageChange={(page) => dispatch(setCurrentPage(page))}
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="text-center py-24">
+                                        <div className="mb-6 flex justify-center">
+                                            <div className="p-6 bg-gradient-to-br from-blue-100 via-blue-50 to-slate-100 rounded-3xl shadow-lg">
+                                                <FaEye className="h-20 w-20 text-blue-600" />
                                             </div>
                                         </div>
-                                    )}
-
-
-                                </div>
-                                <div className="flex-shrink-0 border-t-2 border-blue-300 bg-gradient-to-r from-blue-50 via-white to-blue-50 shadow-sm border border-blue-100/50">
-                                    <Pagination
-                                        currentPage={currentPage}
-                                        totalPages={totalPages}
-                                        onPageChange={(page) => dispatch(setCurrentPage(page))}
-                                    />
-                                </div>
-                            </>
-                        ) : (
-                            <div className="text-center py-24">
-                                <div className="mb-6 flex justify-center">
-                                    <div className="p-6 bg-gradient-to-br from-blue-100 via-blue-50 to-slate-100 rounded-3xl shadow-lg">
-                                        <FaEye className="h-20 w-20 text-blue-600" />
+                                        <p className="text-neutral-900 font-bold text-2xl tracking-tight">No data found</p>
+                                        <p className="text-neutral-600 text-sm mt-3 font-medium">Try adjusting your filters or create a new record</p>
                                     </div>
-                                </div>
-                                <p className="text-neutral-900 font-bold text-2xl tracking-tight">No data found</p>
-                                <p className="text-neutral-600 text-sm mt-3 font-medium">Try adjusting your filters or create a new record</p>
-                            </div>
-                        )}
-                    </CardContent>
-                </Card>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+                </div>
             </main>
 
             {/* Login Modal */}
