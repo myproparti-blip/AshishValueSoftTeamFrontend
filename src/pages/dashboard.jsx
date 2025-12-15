@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaComments, FaTimes } from "react-icons/fa";
-import { FaSignOutAlt, FaPlus, FaDownload, FaSyncAlt, FaEye, FaSort, FaChartBar, FaLock, FaClock, FaSpinner, FaCheckCircle, FaTimesCircle, FaEdit, FaFileAlt, FaCreditCard, FaRedo } from "react-icons/fa";
+import { FaTimes, FaWhatsapp } from "react-icons/fa";
+import { FaSignOutAlt, FaPlus, FaDownload, FaSyncAlt, FaEye, FaSort, FaChartBar, FaLock, FaClock, FaSpinner, FaCheckCircle, FaTimesCircle, FaEdit, FaFileAlt, FaCreditCard, FaRedo, FaHeadset } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "../components/ui";
 import { getAllValuations, requestRework } from "../services/ubiShopService";
@@ -18,7 +18,6 @@ import SearchBar from "../components/SearchBar";
 import ReworkModal from "../components/ReworkModal";
 import StatusGraph from "../components/StatusGraph";
 import { getFormRouteForBank, isBofMaharashtraBank } from "../config/bankFormMapping";
-import { streamAIResponse } from "../services/aiService";
 import { FaFileInvoice } from 'react-icons/fa';
 
 const DashboardPage = ({ user, onLogout, onLogin }) => {
@@ -53,12 +52,6 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
     const durationIntervalRef = useRef(null);
     const isMountedRef = useRef(false);
     const { showError } = useNotification();
-    const [showChat, setShowChat] = useState(false);
-    const [messages, setMessages] = useState([]);
-    const [input, setInput] = useState("");
-    const [uploadedFiles, setUploadedFiles] = useState([]);
-    let aiStreamRef = useRef(null);
-    const fileInputRef = useRef(null);
 
 
     // Helper function to normalize status values - trim and validate
@@ -116,51 +109,22 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
         }
         dispatch(setCurrentPage(1));
     };
-    const handleSendMessage = (e) => {
-        e.preventDefault();
-
-        if (!input.trim()) return;
-
-        const userMessage = { sender: "user", text: input };
-        const aiMessage = { sender: "ai", text: "" };
-
-        // Add both messages together to ensure correct indexing
-        setMessages((prev) => [...prev, userMessage, aiMessage]);
-
-        aiStreamRef.current = streamAIResponse(
-            input,
-            (token) => {
-                setMessages((prev) => {
-                    const updated = [...prev];
-                    // AI message is always the last message
-                    const aiIndex = updated.length - 1;
-                    updated[aiIndex] = {
-                        sender: "ai",
-                        text: updated[aiIndex].text + token,
-                    };
-                    return updated;
-                });
-            },
-            () => console.log("AI Complete"),
-            (err) => console.log("AI Error", err)
-        );
-
-        setInput("");
+    const handleOpenHelplineWhatsApp = () => {
+        // Helpline WhatsApp with pre-filled message
+        // Phone number with country code (India: +91)
+        const phoneNumber = "919327361477";
+        const message = encodeURIComponent("Hi, how can I help you?");
+        const whatsappURL = `https://wa.me/${phoneNumber}?text=${message}`;
+        console.log("🟢 Helpline WhatsApp URL:", whatsappURL);
+        window.open(whatsappURL, "_blank");
     };
 
-    const handleFileUpload = (e) => {
-        const files = Array.from(e.target.files);
-        setUploadedFiles((prev) => [...prev, ...files]);
+    const handleOpenPersonalWhatsApp = () => {
+        // Personal WhatsApp - opens user's own WhatsApp without specifying a contact
+        const whatsappURL = `https://web.whatsapp.com/`;
+        console.log("🔵 Personal WhatsApp URL:", whatsappURL);
+        window.open(whatsappURL, "_blank");
     };
-
-    const removeFile = (index) => {
-        setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
-    };
-
-    useEffect(() => {
-        const box = document.getElementById("aiChatBox");
-        if (box) box.scrollTop = box.scrollHeight;
-    }, [messages]);
 
     // Filter files based on status, city, bank, and engineer filters
     const filteredFiles = files.filter(f => {
@@ -805,6 +769,14 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                 </button>
                             )}
 
+                            <button
+                                onClick={handleOpenHelplineWhatsApp}
+                                className="bg-gradient-to-r from-orange-600 to-red-600 text-white hover:from-orange-700 hover:to-red-700 h-8 w-8 sm:h-9 sm:w-9 shadow-md hover:shadow-lg hover:scale-110 transition-all duration-300 inline-flex items-center justify-center flex-shrink-0 rounded-lg border border-red-800 hover:border-red-900"
+                                title="Contact Helpline on WhatsApp"
+                            >
+                                <FaHeadset style={{ fontSize: "13px" }} />
+                            </button>
+
                             <div className="h-6 w-px bg-blue-200"></div>
 
                             {!isLoggedIn ? (
@@ -939,8 +911,8 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                         <FaSyncAlt className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
                                         <span className="hidden sm:inline">Refresh</span>
                                     </Button>
-                                </div>
-                            </CardHeader>
+                                    </div>
+                                    </CardHeader>
 
                             <CardContent>
                                 {paginatedFiles.length > 0 ? (
@@ -1232,86 +1204,6 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                     ))}
                                                 </TableBody>
                                             </Table>
-                                            {showChat && (
-                                                <div className="fixed bottom-6 right-6 w-[600px] h-[700px] bg-white shadow-2xl border border-neutral-300 rounded-2xl z-50 flex flex-col">
-                                                    {/* Chat Header */}
-                                                    <div className="p-4 bg-blue-600 text-white rounded-t-2xl flex justify-between items-center">
-                                                        <span className="font-bold text-lg">AI Assistant</span>
-                                                        <button onClick={() => setShowChat(false)}>
-                                                            <FaTimes className="h-5 w-5" />
-                                                        </button>
-                                                    </div>
-
-                                                    {/* Messages Box */}
-                                                    <div
-                                                        id="aiChatBox"
-                                                        className="flex-1 p-4 overflow-y-auto text-sm text-neutral-800 space-y-3"
-                                                    >
-                                                        {messages.map((msg, idx) => (
-                                                            <div
-                                                                key={idx}
-                                                                className={`p-2 rounded-lg max-w-[90%] ${msg.sender === "user"
-                                                                    ? "ml-auto bg-blue-100 text-blue-900"
-                                                                    : "mr-auto bg-neutral-200"
-                                                                    }`}
-                                                            >
-                                                                {msg.text}
-                                                            </div>
-                                                        ))}
-                                                    </div>
-
-                                                    {/* Input */}
-                                                    <div className="p-4 border-t border-neutral-300">
-                                                        <form onSubmit={handleSendMessage} className="space-y-3">
-                                                            {/* Uploaded Files Display - Compact */}
-                                                            {uploadedFiles.length > 0 && (
-                                                                <div className="flex flex-wrap gap-2">
-                                                                    {uploadedFiles.map((file, idx) => (
-                                                                        <div key={idx} className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-xs font-bold flex items-center gap-2">
-                                                                            <span className="truncate max-w-[150px]">{file.name}</span>
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => removeFile(idx)}
-                                                                                className="text-blue-600 hover:text-blue-800 font-bold"
-                                                                            >
-                                                                                ✕
-                                                                            </button>
-                                                                        </div>
-                                                                    ))}
-                                                                </div>
-                                                            )}
-
-                                                            <div className="flex gap-2">
-                                                                <textarea
-                                                                    value={input}
-                                                                    onChange={(e) => setInput(e.target.value)}
-                                                                    className="flex-1 border border-neutral-300 rounded-lg px-3 py-2 text-sm resize-none"
-                                                                    placeholder="Ask me anything..."
-                                                                    rows="2"
-                                                                />
-                                                                <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 text-sm font-bold self-end">
-                                                                    Send
-                                                                </button>
-                                                            </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => fileInputRef.current?.click()}
-                                                                className="w-full bg-neutral-200 text-neutral-700 px-3 py-2 rounded-lg hover:bg-neutral-300 text-sm font-bold transition-colors"
-                                                            >
-                                                                📎 Attach Files
-                                                            </button>
-                                                            <input
-                                                                ref={fileInputRef}
-                                                                type="file"
-                                                                onChange={handleFileUpload}
-                                                                multiple
-                                                                accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png"
-                                                                className="hidden"
-                                                            />
-                                                        </form>
-                                                    </div>
-                                                </div>
-                                            )}
 
 
                                         </div>
@@ -1390,13 +1282,14 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                 onSubmit={handleReworkSubmit}
                 isLoading={reworkLoading}
             />
-            {/* Floating Chat Icon */}
+
+            {/* Floating Personal WhatsApp Button */}
             <button
-                onClick={() => setShowChat(true)}
-                className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-lg hover:bg-blue-700 hover:scale-110 transition-all z-50"
-                title="AI Assistant"
+                onClick={handleOpenPersonalWhatsApp}
+                className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all z-50"
+                title="Open Personal WhatsApp"
             >
-                <FaComments className="h-5 w-5" />
+                <FaWhatsapp className="h-6 w-6" />
             </button>
 
         </div>
