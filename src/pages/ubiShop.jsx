@@ -1198,15 +1198,7 @@ const EditValuationPage = ({ user, onLogin }) => {
             }
         }
 
-        // === PROPERTY IMAGES VALIDATION ===
-        if (imagePreviews.length === 0) {
-            errors.push("Property image is required");
-        }
 
-        // === LOCATION IMAGES VALIDATION ===
-        if (locationImagePreviews.length === 0) {
-            errors.push("Location image is required");
-        }
 
         return errors;
     };

@@ -248,6 +248,34 @@ export const requestReworkBofMaharashtra = async (id, comments, username, userRo
   }
 };
 
+export const deleteBofMaharashtra = async (id) => {
+  try {
+    const response = await api.delete(`${API_BASE_URL}/bof-maharashtra/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to delete BOF form');
+    }
+    clearAxiosCache('bof-maharashtra');
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting BOF form:", error);
+    throw error.response?.data || { message: error.message };
+  }
+};
+
+export const deleteMultipleBofMaharashtra = async (ids) => {
+  try {
+    const response = await api.post(`${API_BASE_URL}/bof-maharashtra/bulk/delete`, { ids });
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to delete BOF forms');
+    }
+    clearAxiosCache('bof-maharashtra');
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting BOF forms:", error);
+    throw error.response?.data || { message: error.message };
+  }
+};
+
 /**
  * Invalidate BOF Maharashtra cache
  * @param {String} pattern - Optional cache pattern

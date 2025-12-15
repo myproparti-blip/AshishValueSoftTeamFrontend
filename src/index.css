@@ -372,6 +372,16 @@ a:hover {
     background-color: #8c8c8c;
 }
 
+/* Hide scrollbar while maintaining functionality */
+.scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+    display: none;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
     .ant-layout-header {

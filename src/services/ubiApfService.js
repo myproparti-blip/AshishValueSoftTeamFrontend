@@ -248,6 +248,34 @@ export const requestReworkUbiApfForm = async (id, comments, username, userRole) 
   }
 };
 
+export const deleteUbiApfForm = async (id) => {
+  try {
+    const response = await api.delete(`${API_BASE_URL}/ubi-apf/${id}`);
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to delete UBI APF form');
+    }
+    clearAxiosCache('ubi-apf');
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting UBI APF form:", error);
+    throw error.response?.data || { message: error.message };
+  }
+};
+
+export const deleteMultipleUbiApfForms = async (ids) => {
+  try {
+    const response = await api.post(`${API_BASE_URL}/ubi-apf/bulk/delete`, { ids });
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Failed to delete UBI APF forms');
+    }
+    clearAxiosCache('ubi-apf');
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting UBI APF forms:", error);
+    throw error.response?.data || { message: error.message };
+  }
+};
+
 /**
  * Invalidate UBI APF cache
  * @param {String} pattern - Optional cache pattern

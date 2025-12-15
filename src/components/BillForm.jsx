@@ -326,94 +326,130 @@ const BillForm = ({ user }) => {
     }
 
     if (authError) {
-        return (
-            <div className="min-h-screen bg-neutral-50 p-4 md:p-6">
-                <div className="max-w-7xl mx-auto flex flex-col gap-6">
-                    <div className="flex items-center gap-3 mb-2">
-                        <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => navigate("/bills")}
-                            className="h-9 w-9 border border-neutral-300 hover:bg-neutral-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
-                        >
-                            <FaArrowLeft className="h-4 w-4 text-neutral-700" />
-                        </Button>
-                        <div>
-                            <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">
-                                {id ? "Edit Bill" : "Create New Bill"}
-                            </h1>
-                            <p className="text-xs text-neutral-500 mt-1">{id ? "Update bill details" : "Add a new bill to the system"}</p>
-                        </div>
-                    </div>
-                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-lg mb-6 shadow-sm">
-                        <p className="font-semibold">Authorization Error</p>
-                        <p className="text-sm mt-1">{authError}</p>
-                    </div>
-                </div>
-            </div>
-        );
-    }
+         return (
+             <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+                 <div className="max-w-7xl mx-auto flex flex-col gap-6">
+                     <div className="flex items-center gap-3 mb-2">
+                         <Button
+                             variant="outline"
+                             size="icon"
+                             onClick={() => navigate("/bills")}
+                             className="h-9 w-9 border border-slate-300 hover:bg-slate-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
+                         >
+                             <FaArrowLeft className="h-4 w-4 text-slate-700" />
+                         </Button>
+                         <div>
+                             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                                 {id ? "Edit Bill" : "Create New Bill"}
+                             </h1>
+                             <p className="text-xs text-slate-500 mt-1">{id ? "Update bill details" : "Add a new bill to the system"}</p>
+                         </div>
+                     </div>
+                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-lg mb-6 shadow-sm">
+                         <p className="font-semibold">Authorization Error</p>
+                         <p className="text-sm mt-1">{authError}</p>
+                     </div>
+                 </div>
+             </div>
+         );
+     }
 
     return (
-        <div className="min-h-screen bg-neutral-50 p-4">
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-neutral-200">
-                <Button
-                    variant="outline"
-                    size="icon"
-                    onClick={() => navigate("/bills")}
-                    className="h-9 w-9 border border-neutral-300 hover:bg-neutral-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
-                >
-                    <FaArrowLeft className="h-4 w-4 text-neutral-700" />
-                </Button>
-                <div className="flex-1">
-                    <h1 className="text-2xl font-bold text-neutral-900 tracking-tight">
-                        {id ? "Edit Bill" : "Create New Bill"}
-                    </h1>
-                    <p className="text-xs text-neutral-500 mt-1">
-                        {id ? "Update bill details" : "Add a new bill to the system"}
-                    </p>
-                </div>
-            </div>
+         <div className="min-h-screen bg-slate-50 p-4">
+             {/* Header */}
+             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-200">
+                 <Button
+                     variant="outline"
+                     size="icon"
+                     onClick={() => navigate("/bills")}
+                     className="h-9 w-9 border border-slate-300 hover:bg-slate-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
+                 >
+                     <FaArrowLeft className="h-4 w-4 text-slate-700" />
+                 </Button>
+                 <div className="flex-1">
+                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                         {id ? "Edit Bill" : "Create New Bill"}
+                     </h1>
+                     <p className="text-xs text-slate-500 mt-1">
+                         {id ? "Update bill details" : "Add a new bill to the system"}
+                     </p>
+                 </div>
+             </div>
 
-            {/* Main Content - 2-Column Layout (Full Height Optimized) */}
-            <div className="grid grid-cols-12 gap-4 h-[calc(100vh-140px)]">
-                {/* Left Column - Form Errors */}
-                <div className="col-span-12 sm:col-span-3 lg:col-span-2">
-                    <Card className="border border-neutral-200 bg-white rounded-lg overflow-hidden h-full flex flex-col shadow-sm hover:shadow-md transition-all">
-                        <CardHeader className="bg-neutral-50 text-neutral-900 p-4 border-b border-neutral-200">
-                            <CardTitle className="text-sm font-bold flex items-center gap-2 text-neutral-900">
-                                <FaFileInvoice className="h-4 w-4 text-blue-500" />
-                                Status
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 space-y-3 overflow-y-auto flex-1">
-                            {Object.keys(formErrors).length > 0 ? (
-                                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs space-y-2">
-                                    <p className="font-semibold">Errors Found:</p>
-                                    <ul className="list-disc list-inside space-y-1">
-                                        {Object.entries(formErrors).map(([key, error]) => (
-                                            <li key={key} className="text-xs">
-                                                {typeof error === "string"
-                                                    ? error
-                                                    : `${key}`}
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </div>
-                            ) : (
-                                <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs">
-                                    <p className="font-semibold">✓ No Errors</p>
-                                </div>
-                            )}
-                        </CardContent>
-                    </Card>
-                </div>
+             {/* Main Content - 2-Column Layout (Full Height Optimized) */}
+             <div className="grid grid-cols-12 gap-4 h-[calc(100vh-140px)]">
+                 {/* Left Column - Stats & Form Info */}
+                 <div className="col-span-12 sm:col-span-3 lg:col-span-2 flex flex-col gap-4 overflow-y-auto">
+                     {/* Stats Card */}
+                     <Card className="border border-slate-200 bg-white rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all h-auto">
+                         <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
+                             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900">
+                                 <FaFileInvoice className="h-4 w-4 text-blue-500" />
+                                 Status
+                             </CardTitle>
+                         </CardHeader>
+                         <CardContent className="p-4 space-y-3">
+                             {Object.keys(formErrors).length > 0 ? (
+                                 <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs space-y-2">
+                                     <p className="font-semibold">Errors Found:</p>
+                                     <ul className="list-disc list-inside space-y-1">
+                                         {Object.entries(formErrors).map(([key, error]) => (
+                                             <li key={key} className="text-xs">
+                                                 {typeof error === "string"
+                                                     ? error
+                                                     : `${key}`}
+                                             </li>
+                                         ))}
+                                     </ul>
+                                 </div>
+                             ) : (
+                                 <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs">
+                                     <p className="font-semibold">✓ No Errors</p>
+                                 </div>
+                             )}
+                         </CardContent>
+                     </Card>
+
+                     {/* Form Info Card */}
+                     <Card className="border border-slate-200 bg-white rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all h-auto">
+                         <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
+                             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900">
+                                 <FaFileInvoice className="h-4 w-4 text-blue-500" />
+                                 Form Info
+                             </CardTitle>
+                         </CardHeader>
+                         <CardContent className="p-4 space-y-4">
+                             <div className="space-y-1">
+                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">BY</p>
+                                 <p className="text-sm font-semibold text-slate-900">{user?.name || user?.email || "admin"}</p>
+                             </div>
+                             <div className="space-y-1">
+                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">DAY</p>
+                                 <p className="text-sm font-semibold text-slate-900">
+                                     {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                                 </p>
+                             </div>
+                             <div className="space-y-1">
+                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">DATE TIME</p>
+                                 <p className="text-sm font-semibold text-slate-900">
+                                     {new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })},&nbsp;
+                                     {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                                 </p>
+                             </div>
+                             <div className="space-y-1">
+                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">ID</p>
+                                 <p className="text-sm font-mono bg-slate-50 border border-slate-300 px-3 py-2 rounded text-slate-700 truncate">
+                                     FORM-{Math.random().toString(36).substr(2, 8).toUpperCase()}
+                                 </p>
+                             </div>
+                         </CardContent>
+                     </Card>
+                 </div>
 
                 {/* Right Column - Form */}
                 <div className="col-span-12 sm:col-span-9 lg:col-span-10">
-                    <Card className="border border-neutral-200 shadow-sm bg-white rounded-lg overflow-hidden h-full flex flex-col">
-                        <CardHeader className="bg-neutral-50 text-neutral-900 p-4 border-b border-neutral-200">
+                    <Card className="border border-slate-200 shadow-sm bg-white rounded-lg overflow-hidden h-full flex flex-col">
+                        <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
                             <CardTitle className="text-sm font-bold flex items-center gap-2">
                                 <FaFileInvoice className="h-4 w-4 text-blue-500" />
                                 Bill Information
@@ -471,7 +507,7 @@ const BillForm = ({ user }) => {
 
                                 {/* Vendor Details */}
                                 <div className="border-t pt-4">
-                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
                                         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                                         Vendor Details
                                     </h2>
@@ -534,7 +570,7 @@ const BillForm = ({ user }) => {
 
                                 {/* Bill To Details */}
                                 <div className="border-t pt-4">
-                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
                                         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                                         Bill To (Receiver)
                                     </h2>
@@ -581,27 +617,27 @@ const BillForm = ({ user }) => {
 
                                 {/* Bill Items */}
                                 <div className="border-t pt-4">
-                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
                                         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                                         Bill Items
                                     </h2>
                                     <div className="overflow-x-auto">
                                         <table className="w-full text-sm">
-                                            <thead className="bg-neutral-100 border-b border-neutral-300">
+                                            <thead className="bg-slate-100 border-b border-slate-300">
                                                 <tr>
-                                                    <th className="px-3 py-2 text-left font-bold text-neutral-900">Particulars</th>
-                                                    <th className="px-3 py-2 text-left font-bold text-neutral-900">HSN/SAC</th>
-                                                    <th className="px-3 py-2 text-right font-bold text-neutral-900">Amount</th>
-                                                    <th className="px-3 py-2 text-right font-bold text-neutral-900">GST %</th>
-                                                    <th className="px-3 py-2 text-right font-bold text-neutral-900">CGST</th>
-                                                    <th className="px-3 py-2 text-right font-bold text-neutral-900">SGST</th>
-                                                    <th className="px-3 py-2 text-right font-bold text-neutral-900">Total</th>
-                                                    <th className="px-3 py-2 font-bold text-neutral-900">Action</th>
+                                                    <th className="px-3 py-2 text-left font-bold text-slate-900">Particulars</th>
+                                                    <th className="px-3 py-2 text-left font-bold text-slate-900">HSN/SAC</th>
+                                                    <th className="px-3 py-2 text-right font-bold text-slate-900">Amount</th>
+                                                    <th className="px-3 py-2 text-right font-bold text-slate-900">GST %</th>
+                                                    <th className="px-3 py-2 text-right font-bold text-slate-900">CGST</th>
+                                                    <th className="px-3 py-2 text-right font-bold text-slate-900">SGST</th>
+                                                    <th className="px-3 py-2 text-right font-bold text-slate-900">Total</th>
+                                                    <th className="px-3 py-2 font-bold text-slate-900">Action</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
                                                 {items.map((item, index) => (
-                                                    <tr key={index} className="border-b hover:bg-neutral-50">
+                                                    <tr key={index} className="border-b hover:bg-slate-50">
                                                         <td className="px-3 py-2">
                                                             <Input
                                                                 type="text"
@@ -697,7 +733,7 @@ const BillForm = ({ user }) => {
 
                                 {/* Bank Details */}
                                 <div className="border-t pt-4">
-                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
                                         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                                         Bank Details
                                     </h2>
@@ -751,7 +787,7 @@ const BillForm = ({ user }) => {
 
                                 {/* Declaration & Signature */}
                                 <div className="border-t pt-4">
-                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                    <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
                                         <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                                         Declaration & Signature
                                     </h2>
@@ -805,54 +841,54 @@ const BillForm = ({ user }) => {
                                 {/* Selected Rows Table */}
                                 {selectedRows.length > 0 && (
                                     <div className="border-t pt-4">
-                                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-neutral-900">
+                                        <h2 className="text-lg font-bold mb-4 flex items-center gap-2 text-slate-900">
                                             <div className="w-1 h-6 bg-blue-500 rounded-full"></div>
                                             Selected Records ({selectedRows.length})
                                         </h2>
-                                        <div className="overflow-x-auto rounded-lg border border-neutral-300">
+                                        <div className="overflow-x-auto rounded-lg border border-slate-300">
                                              <table className="w-full text-sm">
-                                                  <thead className="bg-neutral-100 border-b border-neutral-300">
+                                                  <thead className="bg-slate-100 border-b border-slate-300">
                                                       <tr>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Clnt</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Lead Number</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Addr</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Mobile</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Bank</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">City</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-neutral-900">Fee</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Clnt</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Lead Number</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Addr</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Mobile</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Bank</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">City</th>
+                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Fee</th>
                                                       </tr>
                                                   </thead>
                                                   <tbody>
                                                       {selectedRows.map((row, index) => (
-                                                          <tr key={index} className="border-b border-neutral-200 hover:bg-neutral-50 transition-colors">
-                                                              <td className="px-4 py-2 font-semibold text-neutral-900">{row.clnt}</td>
+                                                          <tr key={index} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                                                              <td className="px-4 py-2 font-semibold text-slate-900">{row.clnt}</td>
                                                               <td className="px-4 py-2">
                                                                   <input
                                                                       type="text"
                                                                       value={selectedRowsData[row._id]?.leadNumber || ""}
                                                                       onChange={(e) => handleSelectedRowDataChange(row._id, "leadNumber", e.target.value)}
                                                                       placeholder="Enter lead number"
-                                                                      className="w-full px-2 py-1 border border-neutral-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                                                                      className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
                                                                   />
                                                               </td>
-                                                              <td className="px-4 py-2 font-semibold text-neutral-700 max-w-xs truncate">{row.addr}</td>
-                                                              <td className="px-4 py-2 font-semibold text-neutral-700">{row.mobile}</td>
-                                                              <td className="px-4 py-2 font-semibold text-neutral-700">{row.bank}</td>
-                                                              <td className="px-4 py-2 font-semibold text-neutral-700">{row.city}</td>
+                                                              <td className="px-4 py-2 font-semibold text-slate-700 max-w-xs truncate">{row.addr}</td>
+                                                              <td className="px-4 py-2 font-semibold text-slate-700">{row.mobile}</td>
+                                                              <td className="px-4 py-2 font-semibold text-slate-700">{row.bank}</td>
+                                                              <td className="px-4 py-2 font-semibold text-slate-700">{row.city}</td>
                                                               <td className="px-4 py-2">
                                                                   <input
                                                                       type="number"
                                                                       value={selectedRowsData[row._id]?.fee || ""}
                                                                       onChange={(e) => handleSelectedRowDataChange(row._id, "fee", e.target.value)}
                                                                       placeholder="0.00"
-                                                                      className="w-full px-2 py-1 border border-neutral-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                                                                      className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
                                                                   />
                                                               </td>
                                                           </tr>
                                                       ))}
-                                                      <tr className="bg-neutral-100 border-t-2 border-neutral-300">
-                                                          <td colSpan="6" className="px-4 py-3 text-right font-bold text-neutral-900">Total Fee:</td>
-                                                          <td className="px-4 py-3 font-bold text-neutral-900 bg-blue-50">
+                                                      <tr className="bg-slate-100 border-t-2 border-slate-300">
+                                                          <td colSpan="6" className="px-4 py-3 text-right font-bold text-slate-900">Total Fee:</td>
+                                                          <td className="px-4 py-3 font-bold text-slate-900 bg-blue-50">
                                                               ₹{selectedRows.reduce((sum, row) => sum + (parseFloat(selectedRowsData[row._id]?.fee) || 0), 0).toFixed(2)}
                                                           </td>
                                                       </tr>
@@ -875,7 +911,7 @@ const BillForm = ({ user }) => {
                                         type="button"
                                         onClick={() => navigate("/bills")}
                                         variant="outline"
-                                        className="font-semibold border border-neutral-300 text-neutral-900 hover:border-neutral-400 hover:bg-neutral-50 transition-all duration-300"
+                                        className="font-semibold border border-slate-300 text-slate-900 hover:border-slate-400 hover:bg-slate-50 transition-all duration-300"
                                     >
                                         Cancel
                                     </Button>

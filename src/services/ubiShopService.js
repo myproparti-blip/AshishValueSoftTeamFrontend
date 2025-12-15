@@ -94,6 +94,26 @@ export const requestRework = async (id, comments, username, userRole) => {
   }
 };
 
+export const deleteValuation = async (id) => {
+  try {
+    const response = await api.delete(`${API_BASE_URL}/valuations/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting valuation:", error);
+    throw error.response?.data || error.message;
+  }
+};
+
+export const deleteMultipleValuations = async (ids) => {
+  try {
+    const response = await api.post(`${API_BASE_URL}/valuations/bulk/delete`, { ids });
+    return response.data;
+  } catch (error) {
+    console.error("Error deleting valuations:", error);
+    throw error.response?.data || error.message;
+  }
+};
+
 
 
 export const invalidateCache = (pattern) => {

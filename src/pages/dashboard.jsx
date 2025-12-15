@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaTimes, FaWhatsapp } from "react-icons/fa";
+import { FaTimes, FaWhatsapp, FaTrash } from "react-icons/fa";
 import { FaSignOutAlt, FaPlus, FaDownload, FaSyncAlt, FaEye, FaSort, FaChartBar, FaLock, FaClock, FaSpinner, FaCheckCircle, FaTimesCircle, FaEdit, FaFileAlt, FaCreditCard, FaRedo, FaHeadset } from "react-icons/fa";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Card, CardContent, CardDescription, CardHeader, CardTitle, Badge, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from "../components/ui";
-import { getAllValuations, requestRework } from "../services/ubiShopService";
-import { getAllBofMaharashtra, requestReworkBofMaharashtra } from "../services/bomFlatService";
-import { getAllUbiApfForms, requestReworkUbiApfForm } from "../services/ubiApfService";
+import { getAllValuations, requestRework, deleteMultipleValuations } from "../services/ubiShopService";
+import { getAllBofMaharashtra, requestReworkBofMaharashtra, deleteMultipleBofMaharashtra } from "../services/bomFlatService";
+import { getAllUbiApfForms, requestReworkUbiApfForm, deleteMultipleUbiApfForms } from "../services/ubiApfService";
 import { logoutUser } from "../services/auth";
 import { showLoader, hideLoader } from "../redux/slices/loaderSlice";
 import { setCurrentPage, setTotalItems } from "../redux/slices/paginationSlice";
@@ -44,6 +44,8 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
     const [reworkingRecordId, setReworkingRecordId] = useState(null);
     const [reworkingRecord, setReworkingRecord] = useState(null);
     const [reworkLoading, setReworkLoading] = useState(false);
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [deleteLoading, setDeleteLoading] = useState(false);
     const username = user?.username || "";
     const role = user?.role || "";
     const clientId = user?.clientId || "";
@@ -663,6 +665,45 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
         };
     }, [isLoggedIn]);
 
+    const handleDeleteSelected = async () => {
+        if (selectedRows.size === 0) return;
+
+        setDeleteLoading(true);
+        try {
+            const idsToDelete = Array.from(selectedRows);
+            
+            // Determine which delete function to use based on selectedForm or bankName
+            const selectedRecords = files.filter(r => selectedRows.has(r._id));
+            
+            for (const record of selectedRecords) {
+                const deleteFunc = record.selectedForm === 'bomFlat' 
+                    ? deleteMultipleBofMaharashtra
+                    : record.selectedForm === 'ubiApf'
+                    ? deleteMultipleUbiApfForms
+                    : deleteMultipleValuations;
+                
+                try {
+                    await deleteFunc([record._id]);
+                } catch (error) {
+                    console.error(`Error deleting record ${record._id}:`, error);
+                }
+            }
+            
+            showSuccess(`Deleted ${idsToDelete.length} record(s)`);
+            setDeleteModalOpen(false);
+            setSelectedRows(new Set());
+            setCopiedRows(new Map());
+            
+            // Refresh data
+            await fetchFiles(false, true);
+        } catch (error) {
+            console.error("Error deleting records:", error);
+            showError("Failed to delete records");
+        } finally {
+            setDeleteLoading(false);
+        }
+    };
+
     const StatCard = ({ title, value, color, status, icon: Icon }) => (
         <div
             onClick={() => status && setStatusFilter(statusFilter === status ? null : status)}
@@ -817,34 +858,28 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
             </header>
 
             {/* Main Content */}
-            <main className="bg-gradient-to-b from-white to-neutral-50">
-                {/* Unified Container - Status Graph & Table with consistent width & alignment */}
-                <div className="px-4 sm:px-6 md:px-8">
-                    {/* Analytics Graphs - Compact - with minimal top spacing */}
-                    {files.length > 0 && (
-                        <div className="pt-2 sm:pt-3 md:pt-4 pb-1 sm:pb-1.5 md:pb-1 animate-fadeIn">
-                            <StatusGraph files={files} isCompact={true} />
-                        </div>
-                    )}
+            <main className="bg-gradient-to-b from-slate-50 via-slate-50 to-slate-100">
+                {/* Unified Premium Container */}
+                <div className="px-4 sm:px-6 md:px-8 py-6 sm:py-8 md:py-10">
+                    {/* Search Bar - Mobile Only */}
+                    <div className="sm:hidden mb-6">
+                        <SearchBar data={files} />
+                    </div>
 
-                    {/* Search Bar & Table Container - Padded */}
-                    <div className="space-y-5 sm:space-y-6 md:space-y-8 pb-8 sm:pb-10 md:pb-12">
-                        {/* Search Bar - Mobile Only */}
-                        <div className="sm:hidden">
-                            <SearchBar data={files} />
-                        </div>
+                    {/* Premium Unified Card - Table */}
+                    <Card className="overflow-hidden bg-white rounded-3xl border border-slate-200/60 shadow-xl hover:shadow-2xl transition-all duration-300">
+                        {/* Data Table - Premium Styling */}
+                          {/* Analytics Section */}
+                        {files.length > 0 && (
+                            <div className="border-b border-slate-100/80 bg-gradient-to-br from-slate-50/50 to-white/50 animate-fadeIn">
+                                <StatusGraph files={files} isCompact={true} />
+                            </div>
+                        )}
 
-                        {/* Data Table - Premium Card */}
-                        <Card className="overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 border-t-4 border-t-slate-700 bg-white rounded-3xl border border-gray-200/50">
-                            <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 sm:gap-4 bg-gradient-to-r from-slate-700 via-slate-600 to-slate-700 border-b border-slate-600 py-3 sm:py-4 shadow-sm">
-                                <div>
-                                    <CardTitle className="text-base sm:text-xl font-bold flex items-center gap-2 text-white tracking-tight">
-                                        <div className="p-1.5 bg-white/15 rounded-lg shadow-sm backdrop-blur-sm border border-white/20">
-                                            <FaEye className="text-white text-base" />
-                                        </div>
-                                        Valuation Forms
-                                    </CardTitle>
-                                    <CardDescription className="text-xs mt-1.5 text-slate-300 font-medium">{sortedFiles.length} records {statusFilter && `— filtered`}</CardDescription>
+                        <div className="bg-white">
+                            <CardHeader >
+                                <div className="min-w-0">
+                                    <CardDescription className="text-xs mt-1 text-neutral-700 font-semibold">{sortedFiles.length} records {statusFilter && `— filtered`}</CardDescription>
                                 </div>
                                 <div className="flex gap-2 flex-wrap">
                                     {(statusFilter || cityFilter || bankFilter || engineerFilter) && (
@@ -857,7 +892,7 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                 setBankFilter(null);
                                                 setEngineerFilter(null);
                                             }}
-                                            className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-blue-400 text-blue-600 bg-white hover:border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 shadow-md hover:shadow-lg"
+                                            className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-neutral-400 text-neutral-600 bg-neutral-50 hover:border-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-all duration-300 shadow-md hover:shadow-lg"
                                         >
                                             Clear Filters
                                         </Button>
@@ -873,7 +908,7 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                         handleCopyToClipboard(selectedRecords);
                                                     }
                                                 }}
-                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-blue-700 hover:scale-105"
+                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-neutral-600 hover:bg-neutral-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-neutral-700 hover:scale-105"
                                             >
                                                 Copy {selectedRows.size}
                                             </Button>
@@ -886,42 +921,51 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                         navigateToBillForm(selectedRecords);
                                                     }
                                                 }}
-                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-green-600 hover:bg-green-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-green-700 hover:scale-105"
+                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-blue-700 hover:scale-105"
                                             >
                                                 <FaFileInvoice className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
                                                 Create Bill ({selectedRows.size})
                                             </Button>
                                             <Button
+                                                variant="destructive"
+                                                size="sm"
+                                                onClick={() => setDeleteModalOpen(true)}
+                                                className="text-xs sm:text-sm px-3 sm:px-4 bg-red-600 hover:bg-red-700 text-white font-bold shadow-md hover:shadow-lg transition-all duration-300 border-2 border-red-700 hover:scale-105"
+                                            >
+                                                <FaTrash className="h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5" />
+                                                Delete ({selectedRows.size})
+                                            </Button>
+                                            <Button
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => setSelectedRows(new Set())}
-                                                className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-neutral-400 text-neutral-600 bg-white hover:border-red-500 hover:bg-red-50 hover:text-red-600 transition-all duration-300 shadow-md hover:shadow-lg"
+                                                className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-neutral-400 text-neutral-600 bg-neutral-50 hover:border-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-all duration-300 shadow-md hover:shadow-lg"
                                             >
                                                 Clear Selection
                                             </Button>
-                                        </>
-                                    )}
+                                            </>
+                                            )}
                                     <Button
                                         variant="outline"
                                         size="sm"
                                         onClick={() => fetchFiles(false, true)}
                                         disabled={loading}
-                                        className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-blue-400 text-blue-600 bg-white hover:border-blue-600 hover:bg-blue-100 hover:text-blue-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:border-neutral-300 disabled:text-neutral-400"
+                                        className="text-xs sm:text-sm px-3 sm:px-4 font-bold border-2 border-neutral-400 text-neutral-600 bg-neutral-50 hover:border-neutral-500 hover:bg-neutral-100 hover:text-neutral-700 transition-all duration-300 shadow-md hover:shadow-lg disabled:opacity-50 disabled:border-neutral-300 disabled:text-neutral-400"
                                     >
                                         <FaSyncAlt className={`h-3.5 w-3.5 sm:h-4 sm:w-4 mr-1.5 ${loading ? "animate-spin" : ""}`} />
                                         <span className="hidden sm:inline">Refresh</span>
                                     </Button>
-                                    </div>
-                                    </CardHeader>
+                                </div>
+                            </CardHeader>
 
-                            <CardContent>
+                            <CardContent className="p-3">
                                 {paginatedFiles.length > 0 ? (
                                     <>
                                         <div className="overflow-x-auto">
-                                            <Table>
+                                             <Table>
                                                 <TableHeader>
-                                                    <TableRow className="hover:bg-transparent bg-gradient-to-r from-blue-600 via-blue-500 to-slate-600 border-b-2 border-blue-700 transition-colors duration-200">
-                                                        <TableHead className="min-w-[40px] text-xs sm:text-sm px-2 py-3 font-black text-white">
+                                                    <TableRow className="bg-gradient-to-r from-slate-600 via-slate-500 to-slate-600 border-b-2 border-slate-700 transition-colors duration-200">
+                                                        <TableHead className="min-w-[40px] text-xs sm:text-sm px-2 py-2 font-black text-white">
                                                             <div className="flex items-center gap-1 justify-center">
                                                                 <input
                                                                     type="checkbox"
@@ -932,99 +976,112 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                                 />
                                                             </div>
                                                         </TableHead>
-                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300 rounded-t-lg" onClick={() => handleSort("clientName")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">CLNT</span>
-                                                                {sortField === "clientName" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[85px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("address")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">ADDR</span>
-                                                                {sortField === "address" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[85px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("mobileNumber")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">MOBILE</span>
-                                                                {sortField === "mobileNumber" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
-                                                            <select
-                                                                value={bankFilter || ""}
-                                                                onChange={(e) => setBankFilter(e.target.value || null)}
-                                                                className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
-                                                                title="Filter by Bank"
-                                                            >
-                                                                <option value="" className="font-semibold">BANK</option>
-                                                                {uniqueBanks.map(bank => (
-                                                                    <option key={bank} value={bank}>{bank}</option>
-                                                                ))}
-                                                            </select>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
-                                                            <select
-                                                                value={engineerFilter || ""}
-                                                                onChange={(e) => setEngineerFilter(e.target.value || null)}
-                                                                className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
-                                                                title="Filter by Engineer"
-                                                            >
-                                                                <option value="" className="font-semibold">ENG</option>
-                                                                {uniqueEngineers.map(engineer => (
-                                                                    <option key={engineer} value={engineer}>{engineer}</option>
-                                                                ))}
-                                                            </select>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2 py-3">
-                                                            <select
-                                                                value={cityFilter || ""}
-                                                                onChange={(e) => setCityFilter(e.target.value || null)}
-                                                                className="text-xs px-2.5 py-1.5 border-2 border-blue-400 rounded-md bg-white text-neutral-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-200 focus:ring-2 focus:ring-blue-200 hover:border-blue-300 transition-all shadow-md h-8"
-                                                                title="Filter by City"
-                                                            >
-                                                                <option value="" className="font-semibold">CITY</option>
-                                                                {uniqueCities.map(city => (
-                                                                    <option key={city} value={city}>{city}</option>
-                                                                ))}
-                                                            </select>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[60px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("payment")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">PAY</span>
-                                                                {sortField === "payment" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[60px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("status")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">STS</span>
-                                                                {sortField === "status" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[70px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("duration")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">DUR</span>
-                                                                {sortField === "duration" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[95px] text-xs sm:text-sm px-2 py-3 cursor-pointer hover:bg-blue-500 font-black text-white transition-colors duration-300" onClick={() => handleSort("createdAt")}>
-                                                            <div className="flex items-center gap-2 whitespace-nowrap">
-                                                                <span className="font-bold tracking-wide text-blue-200">DATE</span>
-                                                                {sortField === "createdAt" && <FaSort className="h-3 w-3 text-blue-200" />}
-                                                            </div>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[110px] text-xs sm:text-sm px-2 py-3 font-black text-white">
-                                                            <span className="font-bold tracking-wide text-blue-200">NOTES</span>
-                                                        </TableHead>
-                                                        <TableHead className="min-w-[80px] text-xs sm:text-sm px-2 py-3 font-black text-white">
-                                                            <span className="font-bold tracking-wide text-blue-200">ACTS</span>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200 rounded-t-lg" onClick={() => handleSort("clientName")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">CLNT</span>
+                                                                 {sortField === "clientName" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                              </div>
+                                                          </TableHead>
+                                                         <TableHead className="min-w-[85px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200" onClick={() => handleSort("address")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">ADDR</span>
+                                                                 {sortField === "address" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                              </div>
+                                                          </TableHead>
+                                                         <TableHead className="min-w-[85px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200" onClick={() => handleSort("mobileNumber")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">MOBILE</span>
+                                                                 {sortField === "mobileNumber" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                              </div>
+                                                          </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2.5 py-2">
+                                                             <div className="flex flex-col gap-1 h-full">
+                                                                 <span className="font-black tracking-widest text-black text-xs text-center leading-tight">BANK</span>
+                                                                 <select
+                                                                     value={bankFilter || ""}
+                                                                     onChange={(e) => setBankFilter(e.target.value || null)}
+                                                                     className="text-xs px-2 py-1 border-2 border-blue-500 rounded-md bg-white text-slate-900 font-bold cursor-pointer w-full focus:outline-none focus:border-blue-600 focus:ring-2 focus:ring-blue-300 hover:border-blue-600 hover:bg-blue-50 transition-all shadow-md h-7"
+                                                                     title="Filter by Bank"
+                                                                 >
+                                                                     <option value="">All</option>
+                                                                     {uniqueBanks.map(bank => (
+                                                                         <option key={bank} value={bank}>{bank}</option>
+                                                                     ))}
+                                                                 </select>
+                                                             </div>
+                                                         </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2.5 py-2">
+                                                             <div className="flex flex-col gap-1 h-full">
+                                                                 <span className="font-black tracking-widest text-black text-xs text-center leading-tight">ENG</span>
+                                                                 <select
+                                                                     value={engineerFilter || ""}
+                                                                     onChange={(e) => setEngineerFilter(e.target.value || null)}
+                                                                     className="text-xs px-2 py-1 border-2 border-green-500 rounded-md bg-white text-slate-900 font-bold cursor-pointer w-full focus:outline-none focus:border-green-600 focus:ring-2 focus:ring-green-300 hover:border-green-600 hover:bg-green-50 transition-all shadow-md h-7"
+                                                                     title="Filter by Engineer"
+                                                                 >
+                                                                     <option value="">All</option>
+                                                                     {uniqueEngineers.map(engineer => (
+                                                                         <option key={engineer} value={engineer}>{engineer}</option>
+                                                                     ))}
+                                                                 </select>
+                                                             </div>
+                                                         </TableHead>
+                                                        <TableHead className="min-w-[75px] text-xs sm:text-sm px-2.5 py-2">
+                                                             <div className="flex flex-col gap-1 h-full">
+                                                                 <span className="font-black tracking-widest text-black text-xs text-center leading-tight">CITY</span>
+                                                                 <select
+                                                                     value={cityFilter || ""}
+                                                                     onChange={(e) => setCityFilter(e.target.value || null)}
+                                                                     className="text-xs px-2 py-1 border-2 border-purple-500 rounded-md bg-white text-slate-900 font-bold cursor-pointer w-full focus:outline-none focus:border-purple-600 focus:ring-2 focus:ring-purple-300 hover:border-purple-600 hover:bg-purple-50 transition-all shadow-md h-7"
+                                                                     title="Filter by City"
+                                                                 >
+                                                                     <option value="">All</option>
+                                                                     {uniqueCities.map(city => (
+                                                                         <option key={city} value={city}>{city}</option>
+                                                                     ))}
+                                                                 </select>
+                                                             </div>
+                                                         </TableHead>
+                                                        <TableHead className="min-w-[60px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200" onClick={() => handleSort("payment")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">PAY</span>
+                                                                 {sortField === "payment" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                                </div>
+                                                            </TableHead>
+                                                         <TableHead className="min-w-[60px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200" onClick={() => handleSort("status")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">STS</span>
+                                                                 {sortField === "status" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                                </div>
+                                                            </TableHead>
+                                                         <TableHead className="min-w-[70px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200" onClick={() => handleSort("duration")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">DUR</span>
+                                                                 {sortField === "duration" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                                </div>
+                                                            </TableHead>
+                                                         <TableHead className="min-w-[95px] text-xs sm:text-sm px-2.5 py-3 cursor-pointer font-black text-white transition-all duration-200" onClick={() => handleSort("createdAt")}>
+                                                             <div className="flex items-center gap-1.5 whitespace-nowrap justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">DATE</span>
+                                                                 {sortField === "createdAt" && <FaSort className="h-3 w-3 text-blue-200" />}
+                                                                </div>
+                                                            </TableHead>
+                                                         <TableHead className="min-w-[110px] text-xs sm:text-sm px-2.5 py-3 font-black text-white">
+                                                             <div className="flex justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">NOTES</span>
+                                                             </div>
+                                                         </TableHead>
+                                                         <TableHead className="min-w-[80px] text-xs sm:text-sm px-2.5 py-3 font-black text-white">
+                                                             <div className="flex justify-center">
+                                                                 <span className="font-black tracking-widest text-black text-xs leading-none drop-shadow-md">ACTS</span>
+                                                             </div>
                                                         </TableHead>
                                                     </TableRow>
                                                 </TableHeader>
                                                 <TableBody>
                                                     {paginatedFiles.map((record) => (
-                                                        <TableRow key={record._id} className="hover:bg-blue-50 border-b border-neutral-200 transition-all duration-300 hover:shadow-md hover:border-blue-400 group hover:scale-y-105">
-                                                            <TableCell className="text-sm text-center px-1 py-2">
+                                                         <TableRow key={record._id} className="hover:bg-slate-50/80 border-b border-slate-100/80 transition-all duration-200 hover:shadow-sm group hover:scale-y-102 h-auto">
+                                                             <TableCell className="text-sm text-center px-1 py-2">
                                                                 <input
                                                                     type="checkbox"
                                                                     checked={selectedRows.has(record._id)}
@@ -1035,10 +1092,18 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
 
 
                                                             </TableCell>
-                                                            <TableCell className={`text-sm font-black text-neutral-900 group-hover:text-blue-700 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'whitespace-normal' : ''}`}>{record.clientName}</TableCell>
-                                                            <TableCell className={`text-sm font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'max-w-[200px] whitespace-normal break-words' : 'max-w-[140px] truncate'}`}>{record.address}</TableCell>
-                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700 group-hover:text-neutral-900 transition-colors duration-200">{record.mobileNumber}</TableCell>
-                                                            <TableCell className="text-xs px-1 py-2 font-semibold text-neutral-700">
+                                                            <TableCell className={`text-sm font-black text-slate-900 group-hover:text-slate-700 transition-colors duration-200 ${record.address && record.address.length > 50 ? 'whitespace-normal' : ''}`}>{record.clientName}</TableCell>
+                                                            <TableCell className="text-xs max-w-[160px] px-2 py-2">
+                                                                {record.address ? (
+                                                                    <div className="text-xs font-medium text-slate-700 bg-slate-50 rounded border border-slate-200 p-2 max-h-[80px] overflow-y-auto break-words scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
+                                                                        {record.address}
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-slate-400 font-medium">-</span>
+                                                                )}
+                                                            </TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-slate-700 group-hover:text-slate-900 transition-colors duration-200">{record.mobileNumber}</TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 font-semibold text-slate-700">
                                                                 <div className="flex flex-col gap-1">
                                                                     <span className="truncate">{record.bankName}</span>
                                                                     {record.selectedForm && (
@@ -1055,8 +1120,8 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                                     )}
                                                                 </div>
                                                             </TableCell>
-                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700">{record.engineerName}</TableCell>
-                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-neutral-700">{record.city}</TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-slate-700">{record.engineerName}</TableCell>
+                                                            <TableCell className="text-xs px-1 py-2 truncate font-semibold text-slate-700">{record.city}</TableCell>
                                                             <TableCell className="px-1 py-2">
                                                                 <Badge variant={record.payment === "yes" ? "success" : "warning"} className="text-xs px-2 py-1 font-bold shadow-sm">
                                                                     {record.payment === "yes" ? "Y" : "N"}
@@ -1065,7 +1130,7 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                             <TableCell className="px-1 py-2 text-center">{getStatusBadge(record.status)}</TableCell>
                                                             <TableCell className="px-1 py-2">
                                                                 {timeDurations[record._id] ? (
-                                                                    <Badge variant="outline" className="text-xs bg-gradient-to-r from-blue-50 to-slate-100 px-2 py-1 font-bold border-blue-300 shadow-sm">{timeDurations[record._id].days}:{timeDurations[record._id].hours}:{timeDurations[record._id].minutes}:{timeDurations[record._id].seconds}</Badge>
+                                                                    <Badge variant="outline" className="text-xs bg-gradient-to-r from-slate-100 to-slate-150 px-2 py-1 font-bold border-slate-300 shadow-sm">{timeDurations[record._id].days}:{timeDurations[record._id].hours}:{timeDurations[record._id].minutes}:{timeDurations[record._id].seconds}</Badge>
                                                                 ) : "-"}
                                                             </TableCell>
                                                             <TableCell className="text-xs sm:text-sm px-1 py-2 font-semibold text-slate-700">
@@ -1076,13 +1141,13 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                                                     </>
                                                                 ) : "-"}
                                                             </TableCell>
-                                                            <TableCell className="text-xs max-w-[100px] px-1 py-2">
+                                                            <TableCell className="text-xs max-w-[180px] px-2 py-2">
                                                                 {record.notes ? (
-                                                                    <div className="whitespace-normal break-words line-clamp-1 text-xs font-semibold text-slate-700" title={record.notes}>
+                                                                    <div className="text-xs font-medium text-slate-700 bg-slate-50 rounded border border-slate-200 p-2 max-h-[80px] overflow-y-auto break-words scrollbar-thin scrollbar-thumb-slate-300 scrollbar-track-slate-100">
                                                                         {record.notes}
                                                                     </div>
                                                                 ) : (
-                                                                    <span className="text-slate-500 font-medium">-</span>
+                                                                    <span className="text-slate-400 font-medium">-</span>
                                                                 )}
                                                             </TableCell>
                                                             <TableCell className="px-1 py-2">
@@ -1207,8 +1272,8 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
 
 
                                         </div>
-                                        <div className="flex-shrink-0 border-t-2 border-blue-300 bg-gradient-to-r from-blue-50 via-white to-blue-50 shadow-sm border border-blue-100/50">
-                                            <Pagination
+                                         <div className="border-t border-slate-100/60 bg-white p-3">
+                                             <Pagination
                                                 currentPage={currentPage}
                                                 totalPages={totalPages}
                                                 onPageChange={(page) => dispatch(setCurrentPage(page))}
@@ -1218,17 +1283,17 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                                 ) : (
                                     <div className="text-center py-24">
                                         <div className="mb-6 flex justify-center">
-                                            <div className="p-6 bg-gradient-to-br from-blue-100 via-blue-50 to-slate-100 rounded-3xl shadow-lg">
-                                                <FaEye className="h-20 w-20 text-blue-600" />
+                                            <div className="p-6 bg-gradient-to-br from-slate-200 via-slate-100 to-slate-150 rounded-3xl shadow-lg">
+                                                <FaEye className="h-20 w-20 text-slate-600" />
                                             </div>
                                         </div>
-                                        <p className="text-neutral-900 font-bold text-2xl tracking-tight">No data found</p>
-                                        <p className="text-neutral-600 text-sm mt-3 font-medium">Try adjusting your filters or create a new record</p>
+                                        <p className="text-slate-900 font-bold text-2xl tracking-tight">No data found</p>
+                                        <p className="text-slate-600 text-sm mt-3 font-medium">Try adjusting your filters or create a new record</p>
                                     </div>
                                 )}
                             </CardContent>
-                        </Card>
-                    </div>
+                        </div>
+                    </Card>
                 </div>
             </main>
 
@@ -1283,10 +1348,38 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
                 isLoading={reworkLoading}
             />
 
+            {/* Delete Confirmation Dialog */}
+            <Dialog open={deleteModalOpen} onOpenChange={setDeleteModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Delete Records</DialogTitle>
+                        <DialogDescription>
+                            Are you sure you want to delete {selectedRows.size} selected record(s)? This action cannot be undone.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setDeleteModalOpen(false)}
+                            disabled={deleteLoading}
+                        >
+                            Cancel
+                        </Button>
+                        <Button
+                            variant="destructive"
+                            onClick={handleDeleteSelected}
+                            disabled={deleteLoading}
+                        >
+                            {deleteLoading ? "Deleting..." : "Delete"}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
             {/* Floating Personal WhatsApp Button */}
             <button
                 onClick={handleOpenPersonalWhatsApp}
-                className="fixed bottom-6 right-6 bg-blue-600 text-white p-4 rounded-full shadow-2xl hover:bg-blue-700 hover:scale-110 transition-all z-50"
+                className="fixed bottom-6 right-6 bg-gradient-to-br from-slate-700 to-slate-800 text-white p-4 rounded-full shadow-xl hover:shadow-2xl hover:bg-slate-800 hover:scale-110 transition-all z-50 border border-slate-600/50"
                 title="Open Personal WhatsApp"
             >
                 <FaWhatsapp className="h-6 w-6" />
