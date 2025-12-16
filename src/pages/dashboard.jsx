@@ -142,6 +142,11 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
         let aVal = a[sortField];
         let bVal = b[sortField];
 
+        // Handle null/undefined values
+        if (aVal == null && bVal == null) return 0;
+        if (aVal == null) return sortOrder === "asc" ? 1 : -1;
+        if (bVal == null) return sortOrder === "asc" ? -1 : 1;
+
         // Handle duration sorting
         if (sortField === "duration") {
             const aDuration = timeDurations[a._id];
@@ -160,7 +165,7 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
         }
 
         // Handle string sorting
-        if (typeof aVal === "string") {
+        if (typeof aVal === "string" && typeof bVal === "string") {
             aVal = aVal.toLowerCase();
             bVal = bVal.toLowerCase();
             return sortOrder === "asc" ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
@@ -168,7 +173,7 @@ const DashboardPage = ({ user, onLogout, onLogin }) => {
 
         // Handle numeric sorting 
         if (sortOrder === "asc") {
-            return aVal > bVal ? 1 : -1;
+            return aVal < bVal ? -1 : 1;
         } else {
             return aVal < bVal ? 1 : -1;
         }

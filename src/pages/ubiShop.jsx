@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import exifr from 'exifr';
@@ -44,6 +44,7 @@ const EditValuationPage = ({ user, onLogin }) => {
     const [bankName, setBankName] = useState("");
     const [city, setCity] = useState("");
     const [dsa, setDsa] = useState("");
+    const [engineerName, setEngineerName] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalAction, setModalAction] = useState(null);
     const [modalFeedback, setModalFeedback] = useState("");
@@ -421,6 +422,7 @@ const EditValuationPage = ({ user, onLogin }) => {
     const fileInputRef4 = useRef(null);
     const locationFileInputRef = useRef(null);
     const documentFileInputRef = useRef(null);
+    const dropdownFetchedRef = useRef(false);
 
     const { showSuccess, showError } = useNotification();
     const username = user?.username || "";
@@ -438,16 +440,19 @@ const EditValuationPage = ({ user, onLogin }) => {
     };
 
     // Fetch dropdown data from API (non-blocking with defaults already set)
-    useEffect(() => {
+    useLayoutEffect(() => {
+        if (dropdownFetchedRef.current) return;
+        dropdownFetchedRef.current = true;
+
         const fetchDropdownData = async () => {
             try {
                 const [banksData, citiesData, dsaData, engineerData] = await Promise.all([
                     getCustomOptions('banks'),
                     getCustomOptions('cities'),
-                    getCustomOptions('dsa'),
+                    getCustomOptions('dsas'),
                     getCustomOptions('engineers')
                 ]);
-                
+
                 // Only update if API returns non-empty data
                 if (Array.isArray(banksData) && banksData.length > 0) {
                     setBanks(banksData);
@@ -466,22 +471,23 @@ const EditValuationPage = ({ user, onLogin }) => {
                 // Defaults are already set, no action needed
             }
         };
-        
+
         // Try to fetch API data, but don't block the UI
         fetchDropdownData();
-    }, []);
+        }, []);
 
-    // Ensure bankName and city states are valid when arrays are loaded
-    useEffect(() => {
-        if (banks.length > 0 && !banks.includes(bankName) && bankName !== "other") {
-            setBankName("other");
-        }
-        if (cities.length > 0 && !cities.includes(city) && city !== "other") {
-            setCity("other");
-        }
-    }, [banks, cities, bankName, city]);
+        // Sync bankName, city, dsa, engineerName values back to formData whenever they change
+        useLayoutEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            bankName: bankName,
+            city: city,
+            dsa: dsa,
+            engineerName: engineerName
+        }));
+        }, [bankName, city, dsa, engineerName]);
 
-    const handleDownloadPDF = async () => {
+        const handleDownloadPDF = async () => {
         try {
             dispatch(showLoader());
             // ALWAYS fetch fresh data from DB - do not use local state which may be stale
@@ -513,7 +519,7 @@ const EditValuationPage = ({ user, onLogin }) => {
         }
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (id) fetchValuation();
     }, [id]);
 
@@ -610,21 +616,12 @@ const EditValuationPage = ({ user, onLogin }) => {
     };
 
     const mapDataToForm = (data) => {
-        // Use the defaults if arrays are empty
-        const actualBanks = banks.length > 0 ? banks : defaultBanks;
-        const actualCities = cities.length > 0 ? cities : defaultCities;
-        const actualDsaNames = dsaNames.length > 0 ? dsaNames : defaultDsaNames;
-        const actualEngineers = engineerNames.length > 0 ? engineerNames : defaultEngineers;
+        // Always store the actual values in state first, regardless of whether they're in the dropdown lists
+        setBankName(data.bankName || "");
+        setCity(data.city || "");
+        setDsa(data.dsa || "");
+        setEngineerName(data.engineerName || "");
 
-        const bankValue = actualBanks.includes(data.bankName) ? data.bankName : "other";
-        const cityValue = actualCities.includes(data.city) ? data.city : "other";
-        const dsaValue = actualDsaNames.includes(data.dsa) ? data.dsa : "other";
-        const engineerValue = actualEngineers.includes(data.engineerName) ? data.engineerName : "other";
-
-        setBankName(bankValue);
-        setCity(cityValue);
-        setDsa(dsaValue);
-        
         // Load custom fields from data
         if (data.customFields && Array.isArray(data.customFields)) {
             setCustomFields(data.customFields);
@@ -644,8 +641,8 @@ const EditValuationPage = ({ user, onLogin }) => {
             address: data.address || prev.address,
             payment: data.payment || prev.payment,
             collectedBy: data.collectedBy || prev.collectedBy,
-            dsa: dsaValue,
-            engineerName: engineerValue,
+            dsa: data.dsa || prev.dsa,
+            engineerName: data.engineerName || prev.engineerName,
             notes: data.notes || prev.notes,
             status: data.status || prev.status,
             managerFeedback: data.managerFeedback || prev.managerFeedback,
@@ -885,11 +882,11 @@ const EditValuationPage = ({ user, onLogin }) => {
                 ...data.pdfDetails
             },
 
-            // Dropdown custom values
-            customBankName: bankValue === "other" ? (data.bankName || data.customBankName || "") : "",
-            customCity: cityValue === "other" ? (data.city || data.customCity || "") : "",
-            customDsa: dsaValue === "other" ? (data.dsa || data.customDsa || "") : "",
-            customEngineerName: engineerValue === "other" ? (data.engineerName || data.customEngineerName || "") : ""
+            // Dropdown custom values - preserve from data
+            customBankName: data.customBankName || prev.customBankName || "",
+            customCity: data.customCity || prev.customCity || "",
+            customDsa: data.customDsa || prev.customDsa || "",
+            customEngineerName: data.customEngineerName || prev.customEngineerName || ""
         }));
     };
 
@@ -1088,7 +1085,7 @@ const EditValuationPage = ({ user, onLogin }) => {
             setFormData(prev => {
                 const newPreviews = [...(prev.documentPreviews || [])];
                 let uploadIndex = 0;
-                
+
                 // Update the last N items (where N = uploadedImages.length) with actual URLs
                 for (let i = newPreviews.length - uploadPromises.length; i < newPreviews.length && uploadIndex < uploadedImages.length; i++) {
                     if (uploadedImages[uploadIndex]) {
@@ -1109,14 +1106,14 @@ const EditValuationPage = ({ user, onLogin }) => {
         } catch (error) {
             console.error('Error uploading supporting images:', error);
             showError('Failed to upload images: ' + error.message);
-            
+
             // Remove the local previews on error
             setFormData(prev => ({
                 ...prev,
                 documentPreviews: (prev.documentPreviews || []).slice(0, -filesToAdd.length)
             }));
         }
-        
+
         // Reset input
         if (documentFileInputRef.current) {
             documentFileInputRef.current.value = '';
@@ -1243,15 +1240,15 @@ const EditValuationPage = ({ user, onLogin }) => {
                 username: formData.username || username,
                 dateTime: formData.dateTime,
                 day: formData.day,
-                bankName: bankName === "other" ? (formData.customBankName || "").trim() : bankName,
-                city: city === "other" ? (formData.customCity || "").trim() : city,
+                bankName: bankName || "",
+                city: city || "",
                 clientName: formData.clientName,
                 mobileNumber: formData.mobileNumber,
                 address: formData.address,
                 payment: formData.payment,
                 collectedBy: formData.collectedBy,
-                dsa: dsa === "other" ? (formData.customDsa || "").trim() : dsa,
-                engineerName: formData.engineerName === "other" ? (formData.customEngineerName || "").trim() : formData.engineerName,
+                dsa: dsa || "",
+                engineerName: engineerName || "",
                 notes: formData.notes,
 
                 // Property Basic Details
@@ -1905,6 +1902,9 @@ const EditValuationPage = ({ user, onLogin }) => {
                                             dsaNames={dsaNames}
                                             dsa={dsa}
                                             setDsa={setDsa}
+                                            engineerName={formData.engineerName || ""}
+                                            setEngineerName={(value) => setFormData(prev => ({ ...prev, engineerName: value }))}
+                                            engineerNames={engineerNames}
                                         />
                                     )}
 
@@ -1950,7 +1950,7 @@ const EditValuationPage = ({ user, onLogin }) => {
                                     {activeTab === "addfields" && (
                                         <div className="space-y-4">
                                             <h3 className="text-lg font-bold text-gray-900 mb-4">Add Custom Fields</h3>
-                                            
+
                                             <div className="p-6 bg-white rounded-2xl border border-gray-200 space-y-4">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
@@ -1994,7 +1994,7 @@ const EditValuationPage = ({ user, onLogin }) => {
                                                         <span className="text-xs text-gray-500">{customFieldValue.length}/500 characters</span>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="flex flex-wrap gap-2">
                                                     <Button
                                                         onClick={handleAddCustomField}
@@ -2023,7 +2023,7 @@ const EditValuationPage = ({ user, onLogin }) => {
                                                 <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
                                                     <div className="flex justify-between items-center mb-4">
                                                         <h4 className="font-bold text-gray-900">
-                                                            Custom Fields 
+                                                            Custom Fields
                                                             <span className="bg-blue-500 text-white text-xs font-semibold ml-2 px-3 py-1 rounded-full">
                                                                 {customFields.length}
                                                             </span>
@@ -2040,8 +2040,8 @@ const EditValuationPage = ({ user, onLogin }) => {
                                                     </div>
                                                     <div className="space-y-2">
                                                         {customFields.map((field, index) => (
-                                                            <div 
-                                                                key={index} 
+                                                            <div
+                                                                key={index}
                                                                 className="flex justify-between items-start p-4 bg-white rounded-lg border border-blue-100 hover:border-blue-300 transition-colors"
                                                             >
                                                                 <div className="flex-1 min-w-0">
@@ -2354,10 +2354,10 @@ const EditValuationPage = ({ user, onLogin }) => {
                                                                     className="h-10 text-sm rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
                                                                 />
                                                             </div>
-                                                            
-                                                            </div>
+
                                                         </div>
-                                                    
+                                                    </div>
+
 
                                                     {/* POSTAL ADDRESS - Section 7 */}
                                                     <div className="mb-6 p-6 bg-amber-50 rounded-2xl border border-amber-100">
@@ -2916,7 +2916,7 @@ const EditValuationPage = ({ user, onLogin }) => {
                                                             <div className="space-y-2">
                                                                 <Label className="text-sm font-bold text-gray-900">Flooring</Label>
                                                                 <ChipSelect
-                                                                    options={["Ceramic Tile flooring", "vitrified Tiles", "Mosaic Tiles","Marble", "Granite", "Wooden", "Cement"]}
+                                                                    options={["Ceramic Tile flooring", "vitrified Tiles", "Mosaic Tiles", "Marble", "Granite", "Wooden", "Cement"]}
                                                                     value={formData.pdfDetails?.unitFlooring || ""}
                                                                     onChange={(value) => setFormData(prev => ({ ...prev, pdfDetails: { ...prev.pdfDetails, unitFlooring: value } }))}
                                                                     disabled={!canEdit}
@@ -2934,7 +2934,7 @@ const EditValuationPage = ({ user, onLogin }) => {
                                                             <div className="space-y-2">
                                                                 <Label className="text-sm font-bold text-gray-900">Windows</Label>
                                                                 <ChipSelect
-                                                                    options={["Nil","Section","Slider", ]}
+                                                                    options={["Nil", "Section", "Slider",]}
                                                                     value={formData.pdfDetails?.unitWindows || ""}
                                                                     onChange={(value) => setFormData(prev => ({ ...prev, pdfDetails: { ...prev.pdfDetails, unitWindows: value } }))}
                                                                     disabled={!canEdit}

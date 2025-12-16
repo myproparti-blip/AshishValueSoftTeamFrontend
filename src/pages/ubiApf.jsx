@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import exifr from 'exifr';
@@ -44,6 +44,7 @@ const UbiApfEditForm = ({ user, onLogin }) => {
     const [bankName, setBankName] = useState("");
     const [city, setCity] = useState("");
     const [dsa, setDsa] = useState("");
+    const [engineerName, setEngineerName] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalAction, setModalAction] = useState(null);
     const [modalFeedback, setModalFeedback] = useState("");
@@ -941,7 +942,7 @@ const UbiApfEditForm = ({ user, onLogin }) => {
 
     const [imagePreviews, setImagePreviews] = useState([]);
     const [locationImagePreviews, setLocationImagePreviews] = useState([]);
-    
+
     const defaultBanks = ["SBI", "HDFC", "ICICI", "Axis", "PNB", "BOB"];
     const defaultCities = ["Surat", "vadodara", "Ahmedabad", "Kheda"];
     const defaultDsaNames = ["Bhayva Shah", "Shailesh Shah", "Vijay Shah"];
@@ -964,6 +965,7 @@ const UbiApfEditForm = ({ user, onLogin }) => {
     const fileInputRef4 = useRef(null);
     const documentFileInputRef = useRef(null);
     const locationFileInputRef = useRef(null);
+    const dropdownFetchedRef = useRef(false);
 
     const username = user?.username || "";
     const role = user?.role || "";
@@ -1040,7 +1042,7 @@ const UbiApfEditForm = ({ user, onLogin }) => {
         }
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (id) loadValuation();
     }, [id]);
 
@@ -1055,16 +1057,19 @@ const UbiApfEditForm = ({ user, onLogin }) => {
     };
 
     // Fetch dropdown data from API (non-blocking with defaults already set)
-    useEffect(() => {
+    useLayoutEffect(() => {
+        if (dropdownFetchedRef.current) return;
+        dropdownFetchedRef.current = true;
+
         const fetchDropdownData = async () => {
             try {
                 const [banksData, citiesData, dsaData, engineerData] = await Promise.all([
                     getCustomOptions('banks'),
                     getCustomOptions('cities'),
-                    getCustomOptions('dsa'),
+                    getCustomOptions('dsas'),
                     getCustomOptions('engineers')
                 ]);
-                
+
                 // Only update if API returns non-empty data
                 if (Array.isArray(banksData) && banksData.length > 0) {
                     setBanks(banksData);
@@ -1083,22 +1088,23 @@ const UbiApfEditForm = ({ user, onLogin }) => {
                 // Defaults are already set, no action needed
             }
         };
-        
+
         // Try to fetch API data, but don't block the UI
         fetchDropdownData();
-    }, []);
+        }, []);
 
-    // Ensure bankName and city states are valid when arrays are loaded
-    useEffect(() => {
-        if (banks.length > 0 && !banks.includes(bankName) && bankName !== "other") {
-            setBankName("other");
-        }
-        if (cities.length > 0 && !cities.includes(city) && city !== "other") {
-            setCity("other");
-        }
-    }, [banks, cities, bankName, city]);
+        // Sync bankName, city, dsa, engineerName values back to formData whenever they change
+        useLayoutEffect(() => {
+        setFormData(prev => ({
+            ...prev,
+            bankName: bankName,
+            city: city,
+            dsa: dsa,
+            engineerName: engineerName
+        }));
+        }, [bankName, city, dsa, engineerName]);
 
-    const loadValuation = async () => {
+        const loadValuation = async () => {
         const savedData = localStorage.getItem(`valuation_draft_${username}`);
         if (savedData) {
             const parsedData = JSON.parse(savedData);
@@ -1177,27 +1183,19 @@ const UbiApfEditForm = ({ user, onLogin }) => {
             setBankName(dbData.bankName || "");
             setCity(dbData.city || "");
             setDsa(dbData.dsa || "");
-        } catch (error) {
+            setEngineerName(dbData.engineerName || "");
+            } catch (error) {
             console.error("Error loading valuation:", error);
             // Continue without data
-        }
+            }
     };
 
     const mapDataToForm = (data) => {
-        // Use the defaults if arrays are empty
-        const actualBanks = banks.length > 0 ? banks : defaultBanks;
-        const actualCities = cities.length > 0 ? cities : defaultCities;
-        const actualDsaNames = dsaNames.length > 0 ? dsaNames : defaultDsaNames;
-        const actualEngineers = engineerNames.length > 0 ? engineerNames : defaultEngineers;
-
-        const bankValue = actualBanks.includes(data.bankName) ? data.bankName : "other";
-        const cityValue = actualCities.includes(data.city) ? data.city : "other";
-        const dsaValue = actualDsaNames.includes(data.dsa) ? data.dsa : "other";
-        const engineerValue = actualEngineers.includes(data.engineerName) ? data.engineerName : "other";
-
-        setBankName(bankValue);
-        setCity(cityValue);
-        setDsa(dsaValue);
+        // Always store the actual values in state first, regardless of whether they're in the dropdown lists
+        setBankName(data.bankName || "");
+        setCity(data.city || "");
+        setDsa(data.dsa || "");
+        setEngineerName(data.engineerName || "");
 
         setFormData(prev => {
             // Create a new pdfDetails object by merging prev defaults with incoming data
@@ -1425,7 +1423,7 @@ const UbiApfEditForm = ({ user, onLogin }) => {
             setFormData(prev => {
                 const newPreviews = [...(prev.documentPreviews || [])];
                 let uploadIndex = 0;
-                
+
                 // Update the last N items (where N = uploadedImages.length) with actual URLs
                 for (let i = newPreviews.length - uploadPromises.length; i < newPreviews.length && uploadIndex < uploadedImages.length; i++) {
                     if (uploadedImages[uploadIndex]) {
@@ -1447,14 +1445,14 @@ const UbiApfEditForm = ({ user, onLogin }) => {
         } catch (error) {
             console.error('Error uploading supporting images:', error);
             showError('Failed to upload images: ' + error.message);
-            
+
             // Remove the local previews on error
             setFormData(prev => ({
                 ...prev,
                 documentPreviews: (prev.documentPreviews || []).slice(0, -filesToAdd.length)
             }));
         }
-        
+
         // Reset input
         if (documentFileInputRef.current) {
             documentFileInputRef.current.value = '';
@@ -1632,15 +1630,15 @@ const UbiApfEditForm = ({ user, onLogin }) => {
                 username: formData.username || username,
                 dateTime: formData.dateTime,
                 day: formData.day,
-                bankName: bankName === "other" ? (formData.customBankName || "").trim() : bankName,
-                city: city === "other" ? (formData.customCity || "").trim() : city,
+                bankName: bankName || "",
+                city: city || "",
                 clientName: formData.clientName,
                 mobileNumber: formData.mobileNumber,
                 address: formData.address,
                 payment: formData.payment,
                 collectedBy: formData.collectedBy,
-                dsa: dsa === "other" ? (formData.customDsa || "").trim() : dsa,
-                engineerName: formData.engineerName === "other" ? (formData.customEngineerName || "").trim() : formData.engineerName,
+                dsa: dsa || "",
+                engineerName: engineerName || "",
                 notes: formData.notes,
                 elevation: formData.elevation,
                 directions: formData.directions,
@@ -5682,6 +5680,9 @@ const UbiApfEditForm = ({ user, onLogin }) => {
                                                 dsaNames={dsaNames}
                                                 dsa={dsa}
                                                 setDsa={setDsa}
+                                                engineerName={formData.engineerName || ""}
+                                                setEngineerName={(value) => setFormData(prev => ({ ...prev, engineerName: value }))}
+                                                engineerNames={engineerNames}
                                             />
                                         </div>
                                     )}

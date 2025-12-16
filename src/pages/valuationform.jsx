@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { FaArrowLeft, FaTimes, FaFileAlt } from "react-icons/fa";
@@ -124,7 +124,7 @@ const FormPage = ({ user, onLogin }) => {
     }, []);
 
     // Load custom options on component mount, route change, and visibility change
-    useEffect(() => {
+    useLayoutEffect(() => {
         isMountedRef.current = true;
         loadingRef.current = false;
 
@@ -376,21 +376,21 @@ const FormPage = ({ user, onLogin }) => {
             localStorage.removeItem(`valuation_draft_${username}`);
 
             // Route forms based on selectedForm or bank name
-             if (selectedForm === 'bomFlat' || isBofMaharashtraBank(finalBankName)) {
-                 console.log("[onFinish] Creating BOF Maharashtra form:", { finalBankName, selectedForm });
-                 await createBofMaharashtra(payload);
-             } else if (selectedForm === 'ubiApf') {
-                 console.log("[onFinish] Creating UBI APF form:", { finalBankName, selectedForm });
-                 await createUbiApfForm(payload);
-             } else {
-                 console.log("[onFinish] Creating standard UBI Shop form:", { finalBankName, selectedForm });
-                 // Create valuation in database for other banks
-                 await createValuation(payload);
-             }
+            if (selectedForm === 'bomFlat' || isBofMaharashtraBank(finalBankName)) {
+                console.log("[onFinish] Creating BOF Maharashtra form:", { finalBankName, selectedForm });
+                await createBofMaharashtra(payload);
+            } else if (selectedForm === 'ubiApf') {
+                console.log("[onFinish] Creating UBI APF form:", { finalBankName, selectedForm });
+                await createUbiApfForm(payload);
+            } else {
+                console.log("[onFinish] Creating standard UBI Shop form:", { finalBankName, selectedForm });
+                // Create valuation in database for other banks
+                await createValuation(payload);
+            }
 
-             // Success - form values remain visible during success notification
-             showSuccess("Form submitted successfully!");
-             dispatch(hideLoader());
+            // Success - form values remain visible during success notification
+            showSuccess("Form submitted successfully!");
+            dispatch(hideLoader());
 
             // Reload custom options to include any new ones
             loadCustomOptions();
@@ -473,59 +473,56 @@ const FormPage = ({ user, onLogin }) => {
                     {/* Right Column - Forms Panel & Main Form */}
                     <div className="col-span-12 sm:col-span-9 lg:col-span-10 space-y-4 overflow-y-auto">
                         {/* Available Forms Panel */}
-                      {/* Available Forms Panel */}
-{/* Available Forms Panel */}
-{clientId === "c1908090" && (
-    <Card className="border border-neutral-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all">
-        <CardHeader className="bg-neutral-50 text-neutral-900 p-4 border-b border-neutral-200">
-            <CardTitle className="text-sm font-bold flex items-center gap-2 text-neutral-900">
-                <FaFileAlt className="h-4 w-4 text-green-500" />
-                Available Forms
-            </CardTitle>
-        </CardHeader>
+                        {/* Available Forms Panel */}
+                        {/* Available Forms Panel */}
+                        {clientId === "c1908090" && (
+                            <Card className="border border-neutral-200 bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all">
+                                <CardHeader className="bg-neutral-50 text-neutral-900 p-4 border-b border-neutral-200">
+                                    <CardTitle className="text-sm font-bold flex items-center gap-2 text-neutral-900">
+                                        <FaFileAlt className="h-4 w-4 text-green-500" />
+                                        Available Forms
+                                    </CardTitle>
+                                </CardHeader>
 
-        <CardContent className="p-4">
-            <div className="flex flex-wrap gap-2">
-                <button
-                    type="button"
-                    onClick={() => setSelectedForm(selectedForm === "ubiShop" ? null : "ubiShop")}
-                    className={`px-3 py-2 rounded-full border transition-all shadow-sm text-xs font-semibold cursor-pointer ${
-                        selectedForm === "ubiShop"
-                            ? "bg-blue-500 text-white border-blue-600 hover:bg-blue-600"
-                            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100"
-                    }`}
-                >
-                    UBI Shop
-                </button>
+                                <CardContent className="p-4">
+                                    <div className="flex flex-wrap gap-2">
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedForm(selectedForm === "ubiShop" ? null : "ubiShop")}
+                                            className={`px-3 py-2 rounded-full border transition-all shadow-sm text-xs font-semibold cursor-pointer ${selectedForm === "ubiShop"
+                                                    ? "bg-blue-500 text-white border-blue-600 hover:bg-blue-600"
+                                                    : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-blue-100"
+                                                }`}
+                                        >
+                                            UBI Shop
+                                        </button>
 
-                <button
-                    type="button"
-                    onClick={() => setSelectedForm(selectedForm === "bomFlat" ? null : "bomFlat")}
-                    className={`px-3 py-2 rounded-full border transition-all shadow-sm text-xs font-semibold cursor-pointer ${
-                        selectedForm === "bomFlat"
-                            ? "bg-purple-500 text-white border-purple-600 hover:bg-purple-600"
-                            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
-                    }`}
-                >
-                    BOM Flat
-                </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedForm(selectedForm === "bomFlat" ? null : "bomFlat")}
+                                            className={`px-3 py-2 rounded-full border transition-all shadow-sm text-xs font-semibold cursor-pointer ${selectedForm === "bomFlat"
+                                                    ? "bg-purple-500 text-white border-purple-600 hover:bg-purple-600"
+                                                    : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-purple-100"
+                                                }`}
+                                        >
+                                            BOM Flat
+                                        </button>
 
-                <button
-                    type="button"
-                    onClick={() => setSelectedForm(selectedForm === "ubiApf" ? null : "ubiApf")}
-                    className={`px-3 py-2 rounded-full border transition-all shadow-sm text-xs font-semibold cursor-pointer ${
-                        selectedForm === "ubiApf"
-                            ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600"
-                            : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-amber-100"
-                    }`}
-                >
-                    UBI APF
-                </button>
-            </div>
-        </CardContent>
-    </Card>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSelectedForm(selectedForm === "ubiApf" ? null : "ubiApf")}
+                                            className={`px-3 py-2 rounded-full border transition-all shadow-sm text-xs font-semibold cursor-pointer ${selectedForm === "ubiApf"
+                                                    ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600"
+                                                    : "bg-gray-100 text-gray-700 border-gray-300 hover:bg-amber-100"
+                                                }`}
+                                        >
+                                            UBI APF
+                                        </button>
+                                    </div>
+                                </CardContent>
+                            </Card>
 
-)}
+                        )}
 
                         <Card className="border border-neutral-200 bg-white rounded-xl overflow-hidden h-full flex flex-col shadow-sm hover:shadow-md transition-all">
                             <CardHeader className="bg-neutral-50 text-neutral-900 p-4 border-b border-neutral-200">
@@ -538,349 +535,349 @@ const FormPage = ({ user, onLogin }) => {
                                     {/* Bank & City Row */}
                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                                         {/* Bank Section */}
-                                         <div className="space-y-2">
-                                             <Label className="text-sm font-bold text-neutral-900">Bank *</Label>
-                                             <div className="grid grid-cols-4 gap-1.5">
-                                                 {banks && banks.length > 0 && banks.map(name => (
-                                                     <div key={name} className="relative group">
-                                                         <Button
-                                                             type="button"
-                                                             className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${bankName === name
-                                                                 ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
-                                                                 : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                                 }`}
-                                                             onClick={() => handleBankChange(name)}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             {name}
-                                                         </Button>
-                                                         {!defaultBanks.includes(name) && (
-                                                             <button
-                                                                 type="button"
-                                                                 onClick={(e) => {
-                                                                     e.stopPropagation();
-                                                                     deleteCustomEntry("banks", name);
-                                                                 }}
-                                                                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                                 disabled={!isLoggedIn}
-                                                                 title="Delete"
-                                                             >
-                                                                 <FaTimes className="h-2.5 w-2.5" />
-                                                             </button>
-                                                         )}
-                                                     </div>
-                                                 ))}
-                                                 <div className="relative">
-                                                     {bankName === "other" ? (
-                                                         <Input
-                                                             type="text"
-                                                             placeholder="Name"
-                                                             value={formData.customBankName}
-                                                             onChange={(e) => handleCustomInputChange(e, "customBankName")}
-                                                             className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                                             autoFocus
-                                                             disabled={!isLoggedIn}
-                                                         />
-                                                     ) : (
-                                                         <Button
-                                                             type="button"
-                                                             className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                             onClick={() => handleBankChange("other")}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             Other
-                                                         </Button>
-                                                     )}
-                                                 </div>
-                                             </div>
-                                         </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-bold text-neutral-900">Bank *</Label>
+                                            <div className="grid grid-cols-4 gap-1.5">
+                                                {banks && banks.length > 0 && banks.map(name => (
+                                                    <div key={name} className="relative group">
+                                                        <Button
+                                                            type="button"
+                                                            className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${bankName === name
+                                                                ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
+                                                                : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                                }`}
+                                                            onClick={() => handleBankChange(name)}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            {name}
+                                                        </Button>
+                                                        {!defaultBanks.includes(name) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    deleteCustomEntry("banks", name);
+                                                                }}
+                                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                                disabled={!isLoggedIn}
+                                                                title="Delete"
+                                                            >
+                                                                <FaTimes className="h-2.5 w-2.5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                <div className="relative">
+                                                    {bankName === "other" ? (
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Name"
+                                                            value={formData.customBankName}
+                                                            onChange={(e) => handleCustomInputChange(e, "customBankName")}
+                                                            className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                                            autoFocus
+                                                            disabled={!isLoggedIn}
+                                                        />
+                                                    ) : (
+                                                        <Button
+                                                            type="button"
+                                                            className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                            onClick={() => handleBankChange("other")}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            Other
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         {/* City Section */}
-                                         <div className="space-y-2">
-                                             <Label className="text-sm font-bold text-neutral-900">City *</Label>
-                                             <div className="grid grid-cols-4 gap-1.5">
-                                                 {cities && cities.length > 0 && cities.map(name => (
-                                                     <div key={name} className="relative group">
-                                                         <Button
-                                                             type="button"
-                                                             className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${city === name
-                                                                 ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
-                                                                 : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                                 }`}
-                                                             onClick={() => handleCityChange(name)}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             {name}
-                                                         </Button>
-                                                         {!defaultCities.includes(name) && (
-                                                             <button
-                                                                 type="button"
-                                                                 onClick={(e) => {
-                                                                     e.stopPropagation();
-                                                                     deleteCustomEntry("cities", name);
-                                                                 }}
-                                                                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                                 disabled={!isLoggedIn}
-                                                                 title="Delete"
-                                                             >
-                                                                 <FaTimes className="h-2.5 w-2.5" />
-                                                             </button>
-                                                         )}
-                                                     </div>
-                                                 ))}
-                                                 <div className="relative">
-                                                     {city === "other" ? (
-                                                         <Input
-                                                             type="text"
-                                                             placeholder="Name"
-                                                             value={formData.customCity}
-                                                             onChange={(e) => handleCustomInputChange(e, "customCity")}
-                                                             className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                                             autoFocus
-                                                             disabled={!isLoggedIn}
-                                                         />
-                                                     ) : (
-                                                         <Button
-                                                             type="button"
-                                                             className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                             onClick={() => handleCityChange("other")}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             Other
-                                                         </Button>
-                                                     )}
-                                                     </div>
-                                                     </div>
-                                                     </div>
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-bold text-neutral-900">City *</Label>
+                                            <div className="grid grid-cols-4 gap-1.5">
+                                                {cities && cities.length > 0 && cities.map(name => (
+                                                    <div key={name} className="relative group">
+                                                        <Button
+                                                            type="button"
+                                                            className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${city === name
+                                                                ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
+                                                                : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                                }`}
+                                                            onClick={() => handleCityChange(name)}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            {name}
+                                                        </Button>
+                                                        {!defaultCities.includes(name) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    deleteCustomEntry("cities", name);
+                                                                }}
+                                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                                disabled={!isLoggedIn}
+                                                                title="Delete"
+                                                            >
+                                                                <FaTimes className="h-2.5 w-2.5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                <div className="relative">
+                                                    {city === "other" ? (
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Name"
+                                                            value={formData.customCity}
+                                                            onChange={(e) => handleCustomInputChange(e, "customCity")}
+                                                            className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                                            autoFocus
+                                                            disabled={!isLoggedIn}
+                                                        />
+                                                    ) : (
+                                                        <Button
+                                                            type="button"
+                                                            className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                            onClick={() => handleCityChange("other")}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            Other
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     {/* Client Info Row */}
-                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-                                         <div className="space-y-1.5">
-                                             <Label htmlFor="clientName" className="text-xs font-bold text-neutral-900">Name *</Label>
-                                             <Input
-                                                 id="clientName"
-                                                 placeholder="Client name"
-                                                 name="clientName"
-                                                 value={formData.clientName}
-                                                 onChange={handleInputChange}
-                                                 className="h-8 text-xs rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
-                                                 disabled={!isLoggedIn}
-                                             />
-                                         </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="clientName" className="text-xs font-bold text-neutral-900">Name *</Label>
+                                            <Input
+                                                id="clientName"
+                                                placeholder="Client name"
+                                                name="clientName"
+                                                value={formData.clientName}
+                                                onChange={handleInputChange}
+                                                className="h-8 text-xs rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
+                                                disabled={!isLoggedIn}
+                                            />
+                                        </div>
 
-                                         <div className="space-y-1.5">
-                                             <Label htmlFor="mobileNumber" className="text-xs font-bold text-neutral-900">Mobile *</Label>
-                                             <Input
-                                                 id="mobileNumber"
-                                                 placeholder="10 digits"
-                                                 name="mobileNumber"
-                                                 value={formData.mobileNumber}
-                                                 onChange={handleInputChange}
-                                                 className="h-8 text-xs rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
-                                                 maxLength={10}
-                                                 inputMode="numeric"
-                                                 disabled={!isLoggedIn}
-                                             />
-                                         </div>
+                                        <div className="space-y-1.5">
+                                            <Label htmlFor="mobileNumber" className="text-xs font-bold text-neutral-900">Mobile *</Label>
+                                            <Input
+                                                id="mobileNumber"
+                                                placeholder="10 digits"
+                                                name="mobileNumber"
+                                                value={formData.mobileNumber}
+                                                onChange={handleInputChange}
+                                                className="h-8 text-xs rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
+                                                maxLength={10}
+                                                inputMode="numeric"
+                                                disabled={!isLoggedIn}
+                                            />
+                                        </div>
 
-                                         <div className="lg:col-span-2 space-y-1.5">
-                                             <Label htmlFor="address" className="text-xs font-bold text-neutral-900">Address *</Label>
-                                             <Input
-                                                 id="address"
-                                                 placeholder="Complete address"
-                                                 name="address"
-                                                 value={formData.address}
-                                                 onChange={handleInputChange}
-                                                 className="h-8 text-xs w-full rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
-                                                 disabled={!isLoggedIn}
-                                             />
-                                         </div>
-                                     </div>
+                                        <div className="lg:col-span-2 space-y-1.5">
+                                            <Label htmlFor="address" className="text-xs font-bold text-neutral-900">Address *</Label>
+                                            <Input
+                                                id="address"
+                                                placeholder="Complete address"
+                                                name="address"
+                                                value={formData.address}
+                                                onChange={handleInputChange}
+                                                className="h-8 text-xs w-full rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
+                                                disabled={!isLoggedIn}
+                                            />
+                                        </div>
+                                    </div>
 
                                     {/* Payment Row */}
-                                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
-                                         <div className="lg:col-span-1 space-y-1.5">
-                                             <Label className="text-xs font-bold text-neutral-900">Payment *</Label>
-                                             <RadioGroup value={payment} onValueChange={!isLoggedIn ? undefined : setPayment} className="flex gap-4 pt-0.5">
-                                                 <div className="flex items-center gap-1.5 cursor-pointer">
-                                                     <RadioGroupItem value="yes" id="payment-yes" className="w-4 h-4 border border-neutral-400 accent-blue-500" />
-                                                     <Label htmlFor="payment-yes" className="text-xs font-medium cursor-pointer text-neutral-900">Collected</Label>
-                                                 </div>
-                                                 <div className="flex items-center gap-1.5 cursor-pointer">
-                                                     <RadioGroupItem value="no" id="payment-no" className="w-4 h-4 border border-neutral-400 accent-blue-500" />
-                                                     <Label htmlFor="payment-no" className="text-xs font-medium cursor-pointer text-neutral-900">Pending</Label>
-                                                 </div>
-                                             </RadioGroup>
-                                         </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 p-3 bg-neutral-50 rounded-lg border border-neutral-200">
+                                        <div className="lg:col-span-1 space-y-1.5">
+                                            <Label className="text-xs font-bold text-neutral-900">Payment *</Label>
+                                            <RadioGroup value={payment} onValueChange={!isLoggedIn ? undefined : setPayment} className="flex gap-4 pt-0.5">
+                                                <div className="flex items-center gap-1.5 cursor-pointer">
+                                                    <RadioGroupItem value="yes" id="payment-yes" className="w-4 h-4 border border-neutral-400 accent-blue-500" />
+                                                    <Label htmlFor="payment-yes" className="text-xs font-medium cursor-pointer text-neutral-900">Collected</Label>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 cursor-pointer">
+                                                    <RadioGroupItem value="no" id="payment-no" className="w-4 h-4 border border-neutral-400 accent-blue-500" />
+                                                    <Label htmlFor="payment-no" className="text-xs font-medium cursor-pointer text-neutral-900">Pending</Label>
+                                                </div>
+                                            </RadioGroup>
+                                        </div>
 
-                                         {payment === "yes" && (
-                                             <div className="lg:col-span-2 space-y-1.5">
-                                                 <Label htmlFor="collectedBy" className="text-xs font-bold text-neutral-900">Collected By *</Label>
-                                                 <Input
-                                                     id="collectedBy"
-                                                     placeholder="Collector name"
-                                                     name="collectedBy"
-                                                     value={formData.collectedBy}
-                                                     onChange={handleInputChange}
-                                                     className="h-8 text-xs w-full rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
-                                                     disabled={!isLoggedIn}
-                                                 />
-                                             </div>
-                                         )}
-                                     </div>
+                                        {payment === "yes" && (
+                                            <div className="lg:col-span-2 space-y-1.5">
+                                                <Label htmlFor="collectedBy" className="text-xs font-bold text-neutral-900">Collected By *</Label>
+                                                <Input
+                                                    id="collectedBy"
+                                                    placeholder="Collector name"
+                                                    name="collectedBy"
+                                                    value={formData.collectedBy}
+                                                    onChange={handleInputChange}
+                                                    className="h-8 text-xs w-full rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 bg-white"
+                                                    disabled={!isLoggedIn}
+                                                />
+                                            </div>
+                                        )}
+                                    </div>
 
                                     {/* DSA & Engineer Row */}
-                                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                                         {/* DSA Section */}
-                                         <div className="space-y-2">
-                                             <Label className="text-sm font-bold text-neutral-900">Sales Agent (DSA) *</Label>
-                                             <div className="grid grid-cols-4 gap-1.5">
-                                                 {dsaNames && dsaNames.length > 0 && dsaNames.map(name => (
-                                                     <div key={name} className="relative group">
-                                                         <Button
-                                                             type="button"
-                                                             className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${dsa === name
-                                                                 ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
-                                                                 : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                                 }`}
-                                                             onClick={() => handleDsaChange(name)}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             {name}
-                                                         </Button>
-                                                         {!defaultDsaNames.includes(name) && (
-                                                             <button
-                                                                 type="button"
-                                                                 onClick={(e) => {
-                                                                     e.stopPropagation();
-                                                                     deleteCustomEntry("dsas", name);
-                                                                 }}
-                                                                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                                 disabled={!isLoggedIn}
-                                                                 title="Delete"
-                                                             >
-                                                                 <FaTimes className="h-2.5 w-2.5" />
-                                                             </button>
-                                                         )}
-                                                     </div>
-                                                 ))}
-                                                 <div className="relative">
-                                                     {dsa === "other" ? (
-                                                         <Input
-                                                             type="text"
-                                                             placeholder="Name"
-                                                             value={formData.customDsa}
-                                                             onChange={(e) => handleCustomInputChange(e, "customDsa")}
-                                                             className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                                             autoFocus
-                                                             disabled={!isLoggedIn}
-                                                         />
-                                                     ) : (
-                                                         <Button
-                                                             type="button"
-                                                             className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                             onClick={() => handleDsaChange("other")}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             Other
-                                                         </Button>
-                                                     )}
-                                                     </div>
-                                                     </div>
-                                                     </div>
+                                    <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
+                                        {/* DSA Section */}
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-bold text-neutral-900">Sales Agent (DSA) *</Label>
+                                            <div className="grid grid-cols-4 gap-1.5">
+                                                {dsaNames && dsaNames.length > 0 && dsaNames.map(name => (
+                                                    <div key={name} className="relative group">
+                                                        <Button
+                                                            type="button"
+                                                            className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${dsa === name
+                                                                ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
+                                                                : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                                }`}
+                                                            onClick={() => handleDsaChange(name)}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            {name}
+                                                        </Button>
+                                                        {!defaultDsaNames.includes(name) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    deleteCustomEntry("dsas", name);
+                                                                }}
+                                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                                disabled={!isLoggedIn}
+                                                                title="Delete"
+                                                            >
+                                                                <FaTimes className="h-2.5 w-2.5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                <div className="relative">
+                                                    {dsa === "other" ? (
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Name"
+                                                            value={formData.customDsa}
+                                                            onChange={(e) => handleCustomInputChange(e, "customDsa")}
+                                                            className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                                            autoFocus
+                                                            disabled={!isLoggedIn}
+                                                        />
+                                                    ) : (
+                                                        <Button
+                                                            type="button"
+                                                            className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                            onClick={() => handleDsaChange("other")}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            Other
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
 
-                                                     {/* Engineer Name Section */}
-                                         <div className="space-y-2">
-                                             <Label className="text-sm font-bold text-neutral-900">Engineer *</Label>
-                                             <div className="grid grid-cols-4 gap-1.5">
-                                                 {engineers && engineers.length > 0 && engineers.map(name => (
-                                                     <div key={name} className="relative group">
-                                                         <Button
-                                                             type="button"
-                                                             className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${engineerName === name
-                                                                 ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
-                                                                 : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                                 }`}
-                                                             onClick={() => handleEngineerChange(name)}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             {name}
-                                                         </Button>
-                                                         {!defaultEngineers.includes(name) && (
-                                                             <button
-                                                                 type="button"
-                                                                 onClick={(e) => {
-                                                                     e.stopPropagation();
-                                                                     deleteCustomEntry("engineers", name);
-                                                                 }}
-                                                                 className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                                 disabled={!isLoggedIn}
-                                                                 title="Delete"
-                                                             >
-                                                                 <FaTimes className="h-2.5 w-2.5" />
-                                                             </button>
-                                                         )}
-                                                     </div>
-                                                 ))}
-                                                 <div className="relative">
-                                                     {engineerName === "other" ? (
-                                                         <Input
-                                                             type="text"
-                                                             placeholder="Name"
-                                                             value={formData.customEngineerName}
-                                                             onChange={(e) => handleCustomInputChange(e, "customEngineerName")}
-                                                             className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                                             autoFocus
-                                                             disabled={!isLoggedIn}
-                                                         />
-                                                     ) : (
-                                                         <Button
-                                                             type="button"
-                                                             className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                                             onClick={() => handleEngineerChange("other")}
-                                                             disabled={!isLoggedIn}
-                                                         >
-                                                             Other
-                                                         </Button>
-                                                     )}
-                                                     </div>
-                                                     </div>
-                                                     </div>
-                                                     </div>
+                                        {/* Engineer Name Section */}
+                                        <div className="space-y-2">
+                                            <Label className="text-sm font-bold text-neutral-900">Engineer *</Label>
+                                            <div className="grid grid-cols-4 gap-1.5">
+                                                {engineers && engineers.length > 0 && engineers.map(name => (
+                                                    <div key={name} className="relative group">
+                                                        <Button
+                                                            type="button"
+                                                            className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${engineerName === name
+                                                                ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
+                                                                : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                                }`}
+                                                            onClick={() => handleEngineerChange(name)}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            {name}
+                                                        </Button>
+                                                        {!defaultEngineers.includes(name) && (
+                                                            <button
+                                                                type="button"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    deleteCustomEntry("engineers", name);
+                                                                }}
+                                                                className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                                disabled={!isLoggedIn}
+                                                                title="Delete"
+                                                            >
+                                                                <FaTimes className="h-2.5 w-2.5" />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                ))}
+                                                <div className="relative">
+                                                    {engineerName === "other" ? (
+                                                        <Input
+                                                            type="text"
+                                                            placeholder="Name"
+                                                            value={formData.customEngineerName}
+                                                            onChange={(e) => handleCustomInputChange(e, "customEngineerName")}
+                                                            className="h-8 text-xs rounded-lg border border-neutral-300 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                                            autoFocus
+                                                            disabled={!isLoggedIn}
+                                                        />
+                                                    ) : (
+                                                        <Button
+                                                            type="button"
+                                                            className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
+                                                            onClick={() => handleEngineerChange("other")}
+                                                            disabled={!isLoggedIn}
+                                                        >
+                                                            Other
+                                                        </Button>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
 
-                                                     {/* Notes Section */}
-                                     <div className="space-y-1.5">
-                                         <Label htmlFor="notes" className="text-xs font-bold text-neutral-900">Notes (Optional)</Label>
-                                         <Textarea
-                                             id="notes"
-                                             placeholder="Additional notes..."
-                                             name="notes"
-                                             value={formData.notes}
-                                             onChange={handleInputChange}
-                                             className="text-xs rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 min-h-[40px] max-h-[40px] bg-white"
-                                             disabled={!isLoggedIn}
-                                         />
-                                     </div>
+                                    {/* Notes Section */}
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="notes" className="text-xs font-bold text-neutral-900">Notes (Optional)</Label>
+                                        <Textarea
+                                            id="notes"
+                                            placeholder="Additional notes..."
+                                            name="notes"
+                                            value={formData.notes}
+                                            onChange={handleInputChange}
+                                            className="text-xs rounded-lg border border-neutral-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200 min-h-[40px] max-h-[40px] bg-white"
+                                            disabled={!isLoggedIn}
+                                        />
+                                    </div>
 
                                     {/* Submit Buttons */}
-                                     <div className="flex gap-2.5 pt-3 border-t border-neutral-200">
-                                         <Button
-                                             type="submit"
-                                             disabled={loading || !isLoggedIn}
-                                             className="flex-1 h-9 text-xs font-bold rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-md hover:shadow-lg disabled:opacity-60"
-                                         >
-                                             {!isLoggedIn ? "Login" : loading ? "Submitting..." : "Submit"}
-                                         </Button>
-                                         <Button
-                                             type="button"
-                                             onClick={() => navigate("/dashboard")}
-                                             disabled={loading}
-                                             className="flex-1 h-9 text-xs font-bold rounded-lg border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 text-neutral-900 transition-all"
-                                         >
-                                             Back
-                                         </Button>
-                                     </div>
+                                    <div className="flex gap-2.5 pt-3 border-t border-neutral-200">
+                                        <Button
+                                            type="submit"
+                                            disabled={loading || !isLoggedIn}
+                                            className="flex-1 h-9 text-xs font-bold rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-all shadow-md hover:shadow-lg disabled:opacity-60"
+                                        >
+                                            {!isLoggedIn ? "Login" : loading ? "Submitting..." : "Submit"}
+                                        </Button>
+                                        <Button
+                                            type="button"
+                                            onClick={() => navigate("/dashboard")}
+                                            disabled={loading}
+                                            className="flex-1 h-9 text-xs font-bold rounded-lg border border-neutral-300 hover:border-neutral-400 hover:bg-neutral-50 text-neutral-900 transition-all"
+                                        >
+                                            Back
+                                        </Button>
+                                    </div>
                                 </form>
                             </CardContent>
                         </Card>

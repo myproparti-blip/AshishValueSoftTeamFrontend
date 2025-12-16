@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useLayoutEffect } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import { createBill, updateBill, getBillById } from "../services/billService";
 import { useNotification } from "../context/NotificationContext";
@@ -20,16 +20,16 @@ const BillForm = ({ user }) => {
     const [selectedRows, setSelectedRows] = useState([]);
 
     // Check authorization
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (role !== "manager" && role !== "admin") {
             setAuthError("You do not have permission to create or edit bills. Only managers and admin can access this feature.");
         }
     }, [role]);
 
     // Load selected rows from navigation state or localStorage
-    useEffect(() => {
-        const rows = location.state?.selectedRows || 
-                     JSON.parse(localStorage.getItem('selectedValuationForms')) || [];
+    useLayoutEffect(() => {
+        const rows = location.state?.selectedRows ||
+            JSON.parse(localStorage.getItem('selectedValuationForms')) || [];
         setSelectedRows(rows);
     }, [location.state]);
 
@@ -75,7 +75,7 @@ const BillForm = ({ user }) => {
     });
 
     // Load bill if editing
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (id) {
             loadBill();
         }
@@ -88,11 +88,11 @@ const BillForm = ({ user }) => {
             if (response.success) {
                 setBillData(response.data);
                 setItems(response.data.items || []);
-                
+
                 // Load selectedRecords if they exist
                 if (response.data.selectedRecords && Array.isArray(response.data.selectedRecords)) {
                     setSelectedRows(response.data.selectedRecords);
-                    
+
                     // Populate selectedRowsData with fee and leadNumber from loaded records
                     const rowsData = {};
                     response.data.selectedRecords.forEach(record => {
@@ -102,7 +102,7 @@ const BillForm = ({ user }) => {
                         };
                     });
                     setSelectedRowsData(rowsData);
-                    
+
                     console.log("[BillForm] Loaded selectedRecords:", response.data.selectedRecords);
                 }
             }
@@ -186,7 +186,7 @@ const BillForm = ({ user }) => {
     };
 
     // Sync total fee to first item's amount whenever selectedRowsData changes
-    useEffect(() => {
+    useLayoutEffect(() => {
         if (items.length > 0 && selectedRows.length > 0) {
             const totalFee = selectedRows.reduce((sum, row) => {
                 return sum + (parseFloat(selectedRowsData[row._id]?.fee) || 0);
@@ -326,125 +326,125 @@ const BillForm = ({ user }) => {
     }
 
     if (authError) {
-         return (
-             <div className="min-h-screen bg-slate-50 p-4 md:p-6">
-                 <div className="max-w-7xl mx-auto flex flex-col gap-6">
-                     <div className="flex items-center gap-3 mb-2">
-                         <Button
-                             variant="outline"
-                             size="icon"
-                             onClick={() => navigate("/bills")}
-                             className="h-9 w-9 border border-slate-300 hover:bg-slate-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
-                         >
-                             <FaArrowLeft className="h-4 w-4 text-slate-700" />
-                         </Button>
-                         <div>
-                             <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                                 {id ? "Edit Bill" : "Create New Bill"}
-                             </h1>
-                             <p className="text-xs text-slate-500 mt-1">{id ? "Update bill details" : "Add a new bill to the system"}</p>
-                         </div>
-                     </div>
-                     <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-lg mb-6 shadow-sm">
-                         <p className="font-semibold">Authorization Error</p>
-                         <p className="text-sm mt-1">{authError}</p>
-                     </div>
-                 </div>
-             </div>
-         );
-     }
+        return (
+            <div className="min-h-screen bg-slate-50 p-4 md:p-6">
+                <div className="max-w-7xl mx-auto flex flex-col gap-6">
+                    <div className="flex items-center gap-3 mb-2">
+                        <Button
+                            variant="outline"
+                            size="icon"
+                            onClick={() => navigate("/bills")}
+                            className="h-9 w-9 border border-slate-300 hover:bg-slate-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
+                        >
+                            <FaArrowLeft className="h-4 w-4 text-slate-700" />
+                        </Button>
+                        <div>
+                            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                                {id ? "Edit Bill" : "Create New Bill"}
+                            </h1>
+                            <p className="text-xs text-slate-500 mt-1">{id ? "Update bill details" : "Add a new bill to the system"}</p>
+                        </div>
+                    </div>
+                    <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-4 rounded-lg mb-6 shadow-sm">
+                        <p className="font-semibold">Authorization Error</p>
+                        <p className="text-sm mt-1">{authError}</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return (
-         <div className="min-h-screen bg-slate-50 p-4">
-             {/* Header */}
-             <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-200">
-                 <Button
-                     variant="outline"
-                     size="icon"
-                     onClick={() => navigate("/bills")}
-                     className="h-9 w-9 border border-slate-300 hover:bg-slate-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
-                 >
-                     <FaArrowLeft className="h-4 w-4 text-slate-700" />
-                 </Button>
-                 <div className="flex-1">
-                     <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                         {id ? "Edit Bill" : "Create New Bill"}
-                     </h1>
-                     <p className="text-xs text-slate-500 mt-1">
-                         {id ? "Update bill details" : "Add a new bill to the system"}
-                     </p>
-                 </div>
-             </div>
+        <div className="min-h-screen bg-slate-50 p-4">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-200">
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => navigate("/bills")}
+                    className="h-9 w-9 border border-slate-300 hover:bg-slate-100 hover:border-blue-400 rounded-lg p-0 transition-colors"
+                >
+                    <FaArrowLeft className="h-4 w-4 text-slate-700" />
+                </Button>
+                <div className="flex-1">
+                    <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                        {id ? "Edit Bill" : "Create New Bill"}
+                    </h1>
+                    <p className="text-xs text-slate-500 mt-1">
+                        {id ? "Update bill details" : "Add a new bill to the system"}
+                    </p>
+                </div>
+            </div>
 
-             {/* Main Content - 2-Column Layout (Full Height Optimized) */}
-             <div className="grid grid-cols-12 gap-4 h-[calc(100vh-140px)]">
-                 {/* Left Column - Stats & Form Info */}
-                 <div className="col-span-12 sm:col-span-3 lg:col-span-2 flex flex-col gap-4 overflow-y-auto">
-                     {/* Stats Card */}
-                     <Card className="border border-slate-200 bg-white rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all h-auto">
-                         <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
-                             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900">
-                                 <FaFileInvoice className="h-4 w-4 text-blue-500" />
-                                 Status
-                             </CardTitle>
-                         </CardHeader>
-                         <CardContent className="p-4 space-y-3">
-                             {Object.keys(formErrors).length > 0 ? (
-                                 <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs space-y-2">
-                                     <p className="font-semibold">Errors Found:</p>
-                                     <ul className="list-disc list-inside space-y-1">
-                                         {Object.entries(formErrors).map(([key, error]) => (
-                                             <li key={key} className="text-xs">
-                                                 {typeof error === "string"
-                                                     ? error
-                                                     : `${key}`}
-                                             </li>
-                                         ))}
-                                     </ul>
-                                 </div>
-                             ) : (
-                                 <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs">
-                                     <p className="font-semibold">✓ No Errors</p>
-                                 </div>
-                             )}
-                         </CardContent>
-                     </Card>
+            {/* Main Content - 2-Column Layout (Full Height Optimized) */}
+            <div className="grid grid-cols-12 gap-4 h-[calc(100vh-140px)]">
+                {/* Left Column - Stats & Form Info */}
+                <div className="col-span-12 sm:col-span-3 lg:col-span-2 flex flex-col gap-4 overflow-y-auto">
+                    {/* Stats Card */}
+                    <Card className="border border-slate-200 bg-white rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all h-auto">
+                        <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
+                            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900">
+                                <FaFileInvoice className="h-4 w-4 text-blue-500" />
+                                Status
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-3">
+                            {Object.keys(formErrors).length > 0 ? (
+                                <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg text-xs space-y-2">
+                                    <p className="font-semibold">Errors Found:</p>
+                                    <ul className="list-disc list-inside space-y-1">
+                                        {Object.entries(formErrors).map(([key, error]) => (
+                                            <li key={key} className="text-xs">
+                                                {typeof error === "string"
+                                                    ? error
+                                                    : `${key}`}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            ) : (
+                                <div className="bg-green-50 border border-green-200 text-green-700 px-3 py-2 rounded-lg text-xs">
+                                    <p className="font-semibold">✓ No Errors</p>
+                                </div>
+                            )}
+                        </CardContent>
+                    </Card>
 
-                     {/* Form Info Card */}
-                     <Card className="border border-slate-200 bg-white rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all h-auto">
-                         <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
-                             <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900">
-                                 <FaFileInvoice className="h-4 w-4 text-blue-500" />
-                                 Form Info
-                             </CardTitle>
-                         </CardHeader>
-                         <CardContent className="p-4 space-y-4">
-                             <div className="space-y-1">
-                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">BY</p>
-                                 <p className="text-sm font-semibold text-slate-900">{user?.name || user?.email || "admin"}</p>
-                             </div>
-                             <div className="space-y-1">
-                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">DAY</p>
-                                 <p className="text-sm font-semibold text-slate-900">
-                                     {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
-                                 </p>
-                             </div>
-                             <div className="space-y-1">
-                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">DATE TIME</p>
-                                 <p className="text-sm font-semibold text-slate-900">
-                                     {new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })},&nbsp;
-                                     {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                                 </p>
-                             </div>
-                             <div className="space-y-1">
-                                 <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">ID</p>
-                                 <p className="text-sm font-mono bg-slate-50 border border-slate-300 px-3 py-2 rounded text-slate-700 truncate">
-                                     FORM-{Math.random().toString(36).substr(2, 8).toUpperCase()}
-                                 </p>
-                             </div>
-                         </CardContent>
-                     </Card>
-                 </div>
+                    {/* Form Info Card */}
+                    <Card className="border border-slate-200 bg-white rounded-lg overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-all h-auto">
+                        <CardHeader className="bg-slate-50 text-slate-900 p-4 border-b border-slate-200">
+                            <CardTitle className="text-sm font-bold flex items-center gap-2 text-slate-900">
+                                <FaFileInvoice className="h-4 w-4 text-blue-500" />
+                                Form Info
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 space-y-4">
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">BY</p>
+                                <p className="text-sm font-semibold text-slate-900">{user?.name || user?.email || "admin"}</p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">DAY</p>
+                                <p className="text-sm font-semibold text-slate-900">
+                                    {new Date().toLocaleDateString('en-US', { weekday: 'long' })}
+                                </p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">DATE TIME</p>
+                                <p className="text-sm font-semibold text-slate-900">
+                                    {new Date().toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' })},&nbsp;
+                                    {new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                                </p>
+                            </div>
+                            <div className="space-y-1">
+                                <p className="text-xs font-bold text-slate-600 uppercase tracking-widest">ID</p>
+                                <p className="text-sm font-mono bg-slate-50 border border-slate-300 px-3 py-2 rounded text-slate-700 truncate">
+                                    FORM-{Math.random().toString(36).substr(2, 8).toUpperCase()}
+                                </p>
+                            </div>
+                        </CardContent>
+                    </Card>
+                </div>
 
                 {/* Right Column - Form */}
                 <div className="col-span-12 sm:col-span-9 lg:col-span-10">
@@ -846,55 +846,55 @@ const BillForm = ({ user }) => {
                                             Selected Records ({selectedRows.length})
                                         </h2>
                                         <div className="overflow-x-auto rounded-lg border border-slate-300">
-                                             <table className="w-full text-sm">
-                                                  <thead className="bg-slate-100 border-b border-slate-300">
-                                                      <tr>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Clnt</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Lead Number</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Addr</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Mobile</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Bank</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">City</th>
-                                                          <th className="px-4 py-3 text-left font-bold text-slate-900">Fee</th>
-                                                      </tr>
-                                                  </thead>
-                                                  <tbody>
-                                                      {selectedRows.map((row, index) => (
-                                                          <tr key={index} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
-                                                              <td className="px-4 py-2 font-semibold text-slate-900">{row.clnt}</td>
-                                                              <td className="px-4 py-2">
-                                                                  <input
-                                                                      type="text"
-                                                                      value={selectedRowsData[row._id]?.leadNumber || ""}
-                                                                      onChange={(e) => handleSelectedRowDataChange(row._id, "leadNumber", e.target.value)}
-                                                                      placeholder="Enter lead number"
-                                                                      className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
-                                                                  />
-                                                              </td>
-                                                              <td className="px-4 py-2 font-semibold text-slate-700 max-w-xs truncate">{row.addr}</td>
-                                                              <td className="px-4 py-2 font-semibold text-slate-700">{row.mobile}</td>
-                                                              <td className="px-4 py-2 font-semibold text-slate-700">{row.bank}</td>
-                                                              <td className="px-4 py-2 font-semibold text-slate-700">{row.city}</td>
-                                                              <td className="px-4 py-2">
-                                                                  <input
-                                                                      type="number"
-                                                                      value={selectedRowsData[row._id]?.fee || ""}
-                                                                      onChange={(e) => handleSelectedRowDataChange(row._id, "fee", e.target.value)}
-                                                                      placeholder="0.00"
-                                                                      className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
-                                                                  />
-                                                              </td>
-                                                          </tr>
-                                                      ))}
-                                                      <tr className="bg-slate-100 border-t-2 border-slate-300">
-                                                          <td colSpan="6" className="px-4 py-3 text-right font-bold text-slate-900">Total Fee:</td>
-                                                          <td className="px-4 py-3 font-bold text-slate-900 bg-blue-50">
-                                                              ₹{selectedRows.reduce((sum, row) => sum + (parseFloat(selectedRowsData[row._id]?.fee) || 0), 0).toFixed(2)}
-                                                          </td>
-                                                      </tr>
-                                                  </tbody>
-                                              </table>
-                                          </div>
+                                            <table className="w-full text-sm">
+                                                <thead className="bg-slate-100 border-b border-slate-300">
+                                                    <tr>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">Clnt</th>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">Lead Number</th>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">Addr</th>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">Mobile</th>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">Bank</th>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">City</th>
+                                                        <th className="px-4 py-3 text-left font-bold text-slate-900">Fee</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {selectedRows.map((row, index) => (
+                                                        <tr key={index} className="border-b border-slate-200 hover:bg-slate-50 transition-colors">
+                                                            <td className="px-4 py-2 font-semibold text-slate-900">{row.clnt}</td>
+                                                            <td className="px-4 py-2">
+                                                                <input
+                                                                    type="text"
+                                                                    value={selectedRowsData[row._id]?.leadNumber || ""}
+                                                                    onChange={(e) => handleSelectedRowDataChange(row._id, "leadNumber", e.target.value)}
+                                                                    placeholder="Enter lead number"
+                                                                    className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                                                                />
+                                                            </td>
+                                                            <td className="px-4 py-2 font-semibold text-slate-700 max-w-xs truncate">{row.addr}</td>
+                                                            <td className="px-4 py-2 font-semibold text-slate-700">{row.mobile}</td>
+                                                            <td className="px-4 py-2 font-semibold text-slate-700">{row.bank}</td>
+                                                            <td className="px-4 py-2 font-semibold text-slate-700">{row.city}</td>
+                                                            <td className="px-4 py-2">
+                                                                <input
+                                                                    type="number"
+                                                                    value={selectedRowsData[row._id]?.fee || ""}
+                                                                    onChange={(e) => handleSelectedRowDataChange(row._id, "fee", e.target.value)}
+                                                                    placeholder="0.00"
+                                                                    className="w-full px-2 py-1 border border-slate-300 rounded text-sm focus:outline-none focus:border-blue-500"
+                                                                />
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                    <tr className="bg-slate-100 border-t-2 border-slate-300">
+                                                        <td colSpan="6" className="px-4 py-3 text-right font-bold text-slate-900">Total Fee:</td>
+                                                        <td className="px-4 py-3 font-bold text-slate-900 bg-blue-50">
+                                                            ₹{selectedRows.reduce((sum, row) => sum + (parseFloat(selectedRowsData[row._id]?.fee) || 0), 0).toFixed(2)}
+                                                        </td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
                                     </div>
                                 )}
 

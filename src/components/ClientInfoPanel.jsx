@@ -1,13 +1,13 @@
 import React from "react";
-import { 
-    FaBuilding, 
-    FaUser 
+import {
+    FaBuilding,
+    FaUser
 } from "react-icons/fa";
-import { 
-    Input, 
-    Label, 
-    RadioGroup, 
-    RadioGroupItem 
+import {
+    Input,
+    Label,
+    RadioGroup,
+    RadioGroupItem
 } from "./ui";
 
 const ClientInfoPanel = ({
@@ -22,11 +22,14 @@ const ClientInfoPanel = ({
     setBankName,
     setCity,
     setFormData,
-    banks,
-    cities,
-    dsaNames,
+    banks = [],
+    cities = [],
+    dsaNames = [],
     dsa,
-    setDsa
+    setDsa,
+    engineerName,
+    setEngineerName,
+    engineerNames = []
 }) => {
     return (
         <>
@@ -98,22 +101,21 @@ const ClientInfoPanel = ({
                         </div>
                     ))}
                     <div className="relative">
-                        {bankName === "other" ? (
+                        {!banks.includes(bankName) && bankName ? (
                             <Input
                                 type="text"
                                 placeholder="Name"
                                 name="customBankName"
-                                value={formData.customBankName}
-                                onChange={handleInputChange}
+                                value={bankName}
+                                onChange={(e) => setBankName(e.target.value)}
                                 className="h-8 text-xs rounded-lg border border-blue-600 bg-blue-500 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-semibold placeholder-blue-100"
-                                autoFocus
                                 disabled={!canEditField("bankName")}
                             />
                         ) : (
                             <button
                                 type="button"
                                 className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                onClick={() => setBankName("other")}
+                                onClick={() => setBankName("")}
                                 disabled={!canEditField("bankName")}
                             >
                                 Other
@@ -143,22 +145,21 @@ const ClientInfoPanel = ({
                         </div>
                     ))}
                     <div className="relative">
-                        {city === "other" ? (
+                        {!cities.includes(city) && city ? (
                             <Input
                                 type="text"
                                 placeholder="Name"
                                 name="customCity"
-                                value={formData.customCity}
-                                onChange={handleInputChange}
+                                value={city}
+                                onChange={(e) => setCity(e.target.value)}
                                 className="h-8 text-xs rounded-lg border border-blue-600 bg-blue-500 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-semibold placeholder-blue-100"
-                                autoFocus
                                 disabled={!canEditField("city")}
                             />
                         ) : (
                             <button
                                 type="button"
                                 className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                onClick={() => setCity("other")}
+                                onClick={() => setCity("")}
                                 disabled={!canEditField("city")}
                             >
                                 Other
@@ -176,11 +177,11 @@ const ClientInfoPanel = ({
                         <div key={dsaName} className="relative group">
                             <button
                                 type="button"
-                                className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${formData.dsa === dsaName
+                                className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${dsa === dsaName
                                     ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
                                     : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
                                     }`}
-                                onClick={() => { setDsa(dsaName); setFormData(prev => ({ ...prev, dsa: dsaName, customDsa: "" })); }}
+                                onClick={() => setDsa(dsaName)}
                                 disabled={!canEditField("dsa")}
                             >
                                 {dsaName}
@@ -188,22 +189,21 @@ const ClientInfoPanel = ({
                         </div>
                     ))}
                     <div className="relative">
-                        {formData.dsa === "other" ? (
+                        {!dsaNames.includes(dsa) && dsa ? (
                             <Input
                                 type="text"
                                 placeholder="Name"
                                 name="customDsa"
-                                value={formData.customDsa}
-                                onChange={handleInputChange}
+                                value={dsa}
+                                onChange={(e) => setDsa(e.target.value)}
                                 className="h-8 text-xs rounded-lg border border-blue-600 bg-blue-500 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-semibold placeholder-blue-100"
-                                autoFocus
                                 disabled={!canEditField("dsa")}
                             />
                         ) : (
                             <button
                                 type="button"
                                 className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                onClick={() => { setDsa("other"); setFormData(prev => ({ ...prev, dsa: "other", customDsa: "" })); }}
+                                onClick={() => setDsa("")}
                                 disabled={!canEditField("dsa")}
                             >
                                 Other
@@ -217,15 +217,15 @@ const ClientInfoPanel = ({
             <div className="space-y-2">
                 <Label className="text-sm font-bold text-neutral-900">Engineer *</Label>
                 <div className="grid grid-cols-4 gap-1.5">
-                    {["Bhavesh", "Bhanu", "Ronak", "Mukesh"].map(engineer => (
+                    {engineerNames.map(engineer => (
                         <div key={engineer} className="relative group">
                             <button
                                 type="button"
-                                className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${formData.engineerName === engineer
+                                className={`h-8 w-full text-xs font-semibold rounded-lg transition-all ${engineerName === engineer
                                     ? "bg-blue-500 text-white border border-blue-600 shadow-md hover:bg-blue-600"
                                     : "border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
                                     }`}
-                                onClick={() => setFormData(prev => ({ ...prev, engineerName: engineer, customEngineerName: "" }))}
+                                onClick={() => setEngineerName(engineer)}
                                 disabled={!canEditField("engineerName")}
                             >
                                 {engineer}
@@ -233,22 +233,21 @@ const ClientInfoPanel = ({
                         </div>
                     ))}
                     <div className="relative">
-                        {formData.engineerName === "other" ? (
+                        {!engineerNames.includes(engineerName) && engineerName ? (
                             <Input
                                 type="text"
                                 placeholder="Name"
                                 name="customEngineerName"
-                                value={formData.customEngineerName}
-                                onChange={handleInputChange}
+                                value={engineerName}
+                                onChange={(e) => setEngineerName(e.target.value)}
                                 className="h-8 text-xs rounded-lg border border-blue-600 bg-blue-500 text-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 font-semibold placeholder-blue-100"
-                                autoFocus
                                 disabled={!canEditField("engineerName")}
                             />
                         ) : (
                             <button
                                 type="button"
                                 className="h-8 w-full text-xs font-semibold rounded-lg border border-neutral-300 bg-white text-neutral-900 hover:border-blue-400 hover:bg-blue-50"
-                                onClick={() => setFormData(prev => ({ ...prev, engineerName: "other", customEngineerName: "" }))}
+                                onClick={() => setEngineerName("")}
                                 disabled={!canEditField("engineerName")}
                             >
                                 Other

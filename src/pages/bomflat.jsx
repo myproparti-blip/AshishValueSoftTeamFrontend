@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import exifr from 'exifr';
@@ -44,6 +44,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
     const [bankName, setBankName] = useState("");
     const [city, setCity] = useState("");
     const [dsa, setDsa] = useState("");
+    const [engineerName, setEngineerName] = useState("");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalAction, setModalAction] = useState(null);
     const [modalFeedback, setModalFeedback] = useState("");
@@ -442,7 +443,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
 
     const [imagePreviews, setImagePreviews] = useState([]);
     const [locationImagePreviews, setLocationImagePreviews] = useState([]);
-    
+
     const defaultBanks = ["SBI", "HDFC", "ICICI", "Axis", "PNB", "BOB"];
     const defaultCities = ["Surat", "vadodara", "Ahmedabad", "Kheda"];
     const defaultDsaNames = ["Bhayva Shah", "Shailesh Shah", "Vijay Shah"];
@@ -465,6 +466,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
     const fileInputRef4 = useRef(null);
     const locationFileInputRef = useRef(null);
     const documentFileInputRef = useRef(null);
+    const dropdownFetchedRef = useRef(false);
 
     const username = user?.username || "";
     const role = user?.role || "";
@@ -517,16 +519,19 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
     };
 
     // Fetch dropdown data from API (non-blocking with defaults already set)
-    useEffect(() => {
+    useLayoutEffect(() => {
+        if (dropdownFetchedRef.current) return;
+        dropdownFetchedRef.current = true;
+
         const fetchDropdownData = async () => {
             try {
                 const [banksData, citiesData, dsaData, engineerData] = await Promise.all([
                     getCustomOptions('banks'),
                     getCustomOptions('cities'),
-                    getCustomOptions('dsa'),
+                    getCustomOptions('dsas'),
                     getCustomOptions('engineers')
                 ]);
-                
+
                 // Only update if API returns non-empty data
                 if (Array.isArray(banksData) && banksData.length > 0) {
                     setBanks(banksData);
@@ -545,20 +550,21 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                 // Defaults are already set, no action needed
             }
         };
-        
+
         // Try to fetch API data, but don't block the UI
         fetchDropdownData();
     }, []);
 
-    // Ensure bankName and city states are valid when arrays are loaded
+    // Sync bankName, city, dsa, engineerName values back to formData whenever they change
     useEffect(() => {
-        if (banks.length > 0 && !banks.includes(bankName) && bankName !== "other") {
-            setBankName("other");
-        }
-        if (cities.length > 0 && !cities.includes(city) && city !== "other") {
-            setCity("other");
-        }
-    }, [banks, cities, bankName, city]);
+        setFormData(prev => ({
+            ...prev,
+            bankName: bankName,
+            city: city,
+            dsa: dsa,
+            engineerName: engineerName
+        }));
+    }, [bankName, city, dsa, engineerName]);
 
     const loadValuation = async () => {
         const savedData = localStorage.getItem(`valuation_draft_${username}`);
@@ -626,6 +632,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
             setBankName(dbData.bankName || "");
             setCity(dbData.city || "");
             setDsa(dbData.dsa || "");
+            setEngineerName(dbData.engineerName || "");
         } catch (error) {
             console.error("Error loading valuation:", error);
             // Continue without data
@@ -633,21 +640,12 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
     };
 
     const mapDataToForm = (data) => {
-        // Use the defaults if arrays are empty
-        const actualBanks = banks.length > 0 ? banks : defaultBanks;
-        const actualCities = cities.length > 0 ? cities : defaultCities;
-        const actualDsaNames = dsaNames.length > 0 ? dsaNames : defaultDsaNames;
-        const actualEngineers = engineerNames.length > 0 ? engineerNames : defaultEngineers;
+        // Always store the actual values in state first, regardless of whether they're in the dropdown lists
+        setBankName(data.bankName || "");
+        setCity(data.city || "");
+        setDsa(data.dsa || "");
+        setEngineerName(data.engineerName || "");
 
-        const bankValue = actualBanks.includes(data.bankName) ? data.bankName : "other";
-        const cityValue = actualCities.includes(data.city) ? data.city : "other";
-        const dsaValue = actualDsaNames.includes(data.dsa) ? data.dsa : "other";
-        const engineerValue = actualEngineers.includes(data.engineerName) ? data.engineerName : "other";
-
-        setBankName(bankValue);
-        setCity(cityValue);
-        setDsa(dsaValue);
-        
         // Load custom fields from data
         if (data.customFields && Array.isArray(data.customFields)) {
             setCustomFields(data.customFields);
@@ -877,7 +875,7 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
             setFormData(prev => {
                 const newPreviews = [...(prev.documentPreviews || [])];
                 let uploadIndex = 0;
-                
+
                 // Update the last N items (where N = uploadedImages.length) with actual URLs
                 for (let i = newPreviews.length - uploadPromises.length; i < newPreviews.length && uploadIndex < uploadedImages.length; i++) {
                     if (uploadedImages[uploadIndex]) {
@@ -898,14 +896,14 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
         } catch (error) {
             console.error('Error uploading supporting images:', error);
             showError('Failed to upload images: ' + error.message);
-            
+
             // Remove the local previews on error
             setFormData(prev => ({
                 ...prev,
                 documentPreviews: (prev.documentPreviews || []).slice(0, -filesToAdd.length)
             }));
         }
-        
+
         // Reset input
         if (documentFileInputRef.current) {
             documentFileInputRef.current.value = '';
@@ -1083,15 +1081,15 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                 username: formData.username || username,
                 dateTime: formData.dateTime,
                 day: formData.day,
-                bankName: bankName === "other" ? (formData.customBankName || "").trim() : bankName,
-                city: city === "other" ? (formData.customCity || "").trim() : city,
+                bankName: bankName || "",
+                city: city || "",
                 clientName: formData.clientName,
                 mobileNumber: formData.mobileNumber,
                 address: formData.address,
                 payment: formData.payment,
                 collectedBy: formData.collectedBy,
-                dsa: dsa === "other" ? (formData.customDsa || "").trim() : dsa,
-                engineerName: engineerNames.includes(formData.engineerName) ? formData.engineerName : (formData.customEngineerName || formData.engineerName || "").trim(),
+                dsa: dsa || "",
+                engineerName: formData.engineerName || "",
                 notes: formData.notes,
                 elevation: formData.elevation,
                 directions: formData.directions,
@@ -1430,11 +1428,11 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                     </div>
 
 
-                    </div>
-                    </div>
+                </div>
+            </div>
 
-                    {/* POSTAL ADDRESS & CLASSIFICATION */}
-                    <div className="mb-6 p-6 bg-violet-50 rounded-2xl border border-violet-100">
+            {/* POSTAL ADDRESS & CLASSIFICATION */}
+            <div className="mb-6 p-6 bg-violet-50 rounded-2xl border border-violet-100">
                 <h4 className="font-bold text-gray-900 mb-4">Property Classification & Address</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div className="space-y-1">
@@ -2344,25 +2342,25 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                             </select>
                         </div>
                         <div className="space-y-2">
-                             <Label className="text-sm font-bold text-gray-900">Any others facility</Label>
-                             <select value={formData.pdfDetails?.othersFacility || ""} onChange={(e) => handleValuationChange('othersFacility', e.target.value)} disabled={!canEdit} className="h-8 text-xs rounded-lg border border-neutral-300 py-1 px-2 bg-white px-3">
-                                 <option value="">Select</option>
-                                 <option value="Yes">Yes</option>
-                                 <option value="No">No</option>
-                             </select>
-                         </div>
-                         {formData.pdfDetails?.othersFacility === "Yes" && (
-                             <div className="space-y-2">
-                                 <Label className="text-sm font-bold text-gray-900">Please specify other facilities</Label>
-                                 <Input
-                                     placeholder="e.g., Swimming pool, Gym, etc..."
-                                     value={formData.pdfDetails?.facilityOthers || ""}
-                                     onChange={(e) => handleValuationChange('facilityOthers', e.target.value)}
-                                     disabled={!canEdit}
-                                     className="h-8 text-xs rounded-lg border border-neutral-300 py-1 px-2 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
-                                 />
-                             </div>
-                         )}
+                            <Label className="text-sm font-bold text-gray-900">Any others facility</Label>
+                            <select value={formData.pdfDetails?.othersFacility || ""} onChange={(e) => handleValuationChange('othersFacility', e.target.value)} disabled={!canEdit} className="h-8 text-xs rounded-lg border border-neutral-300 py-1 px-2 bg-white px-3">
+                                <option value="">Select</option>
+                                <option value="Yes">Yes</option>
+                                <option value="No">No</option>
+                            </select>
+                        </div>
+                        {formData.pdfDetails?.othersFacility === "Yes" && (
+                            <div className="space-y-2">
+                                <Label className="text-sm font-bold text-gray-900">Please specify other facilities</Label>
+                                <Input
+                                    placeholder="e.g., Swimming pool, Gym, etc..."
+                                    value={formData.pdfDetails?.facilityOthers || ""}
+                                    onChange={(e) => handleValuationChange('facilityOthers', e.target.value)}
+                                    disabled={!canEdit}
+                                    className="h-8 text-xs rounded-lg border border-neutral-300 py-1 px-2 bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
@@ -2809,8 +2807,8 @@ const BOfMaharastraEditForm = ({ user, onLogin }) => {
                         />
                     </div>
                     <div className="space-y-1">
-                        <Label className="text-xs font-bold text-gray-900">Is it being used for residential or 
-commercial?</Label>
+                        <Label className="text-xs font-bold text-gray-900">Is it being used for residential or
+                            commercial?</Label>
                         <Input
                             placeholder="e.g., Residential/Commercial"
                             value={formData.pdfDetails?.classificationUsage || ""}
@@ -3133,16 +3131,16 @@ commercial?</Label>
                         </select>
                     </div>
                     <div className="space-y-2">
-                         <Label className="text-sm font-bold text-gray-900">Any others facility</Label>
-                         <select value={formData.pdfDetails?.othersFacility || ""} onChange={(e) => handleValuationChange('othersFacility', e.target.value)} disabled={!canEdit} className="h-8 text-xs rounded-lg border border-neutral-300 py-1 px-2 bg-white px-3">
-                             <option value="">Select</option>
-                             <option value="Yes">Yes</option>
-                             <option value="No">No</option>
-                         </select>
-                     </div>
+                        <Label className="text-sm font-bold text-gray-900">Any others facility</Label>
+                        <select value={formData.pdfDetails?.othersFacility || ""} onChange={(e) => handleValuationChange('othersFacility', e.target.value)} disabled={!canEdit} className="h-8 text-xs rounded-lg border border-neutral-300 py-1 px-2 bg-white px-3">
+                            <option value="">Select</option>
+                            <option value="Yes">Yes</option>
+                            <option value="No">No</option>
+                        </select>
                     </div>
-                    </div>
-                    </div>
+                </div>
+            </div>
+        </div>
     );
 
     const renderPropertyTab = () => (
@@ -3247,12 +3245,12 @@ commercial?</Label>
                     </div>
 
 
-                    </div>
-                    </div>
+                </div>
+            </div>
 
-                    {/* POSTAL ADDRESS & CLASSIFICATION */}
-                    <div className="mb-6 p-6 bg-violet-50 rounded-2xl border border-violet-100">
-                    <h4 className="font-bold text-gray-900 mb-4">Property Classification & Address</h4>
+            {/* POSTAL ADDRESS & CLASSIFICATION */}
+            <div className="mb-6 p-6 bg-violet-50 rounded-2xl border border-violet-100">
+                <h4 className="font-bold text-gray-900 mb-4">Property Classification & Address</h4>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                     <div className="space-y-1">
                         <Label className="text-xs font-bold text-gray-900">Postal Address of the property</Label>
@@ -4117,6 +4115,9 @@ commercial?</Label>
                                                 dsaNames={dsaNames}
                                                 dsa={dsa}
                                                 setDsa={setDsa}
+                                                engineerName={engineerName}
+                                                setEngineerName={setEngineerName}
+                                                engineerNames={engineerNames}
                                             />
                                         </div>
                                     )}
@@ -4186,7 +4187,7 @@ commercial?</Label>
                                     {activeTab === "addfields" && (
                                         <div className="space-y-4">
                                             <h3 className="text-lg font-bold text-gray-900 mb-4">Add Custom Fields</h3>
-                                            
+
                                             <div className="p-6 bg-white rounded-2xl border border-gray-200 space-y-4">
                                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                                     <div className="space-y-2">
@@ -4230,7 +4231,7 @@ commercial?</Label>
                                                         <span className="text-xs text-gray-500">{customFieldValue.length}/500 characters</span>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <div className="flex flex-wrap gap-2">
                                                     <Button
                                                         onClick={handleAddCustomField}
@@ -4259,7 +4260,7 @@ commercial?</Label>
                                                 <div className="p-6 bg-blue-50 rounded-2xl border border-blue-200">
                                                     <div className="flex justify-between items-center mb-4">
                                                         <h4 className="font-bold text-gray-900">
-                                                            Custom Fields 
+                                                            Custom Fields
                                                             <span className="bg-blue-500 text-white text-xs font-semibold ml-2 px-3 py-1 rounded-full">
                                                                 {customFields.length}
                                                             </span>
@@ -4276,8 +4277,8 @@ commercial?</Label>
                                                     </div>
                                                     <div className="space-y-2">
                                                         {customFields.map((field, index) => (
-                                                            <div 
-                                                                key={index} 
+                                                            <div
+                                                                key={index}
                                                                 className="flex justify-between items-start p-4 bg-white rounded-lg border border-blue-100 hover:border-blue-300 transition-colors"
                                                             >
                                                                 <div className="flex-1 min-w-0">
